@@ -1,0 +1,22 @@
+BEGIN_PROLOG
+
+#A comment
+// another commnent
+some_thing: {a: 5 b: 6} //line comment
+  #comment away from 0
+  // another comment away from 0
+END_PROLOG
+TheNumber5: 5 #more comments
+VectorOf5s: [5,5.5,5E5]
+bool: true
+string: string
+table: {
+  tablevectormember: [a,b,c,d]
+  tablevectorstringmember: ["a,b","c d",e,f]
+  bool: @local::bool
+  nil: @nil
+}
+table.int: 10
+bla: "stringy string"
+table.tablevectormember[4]: a
+table.tablevectormember[4]: @nil
