@@ -2,11 +2,11 @@
 #define FHICLCPP_SIMPLE_TYPES_TRAITS_HXX_SEEN
 
 #include <array>
+#include <iostream>
 #include <map>
 #include <tuple>
 #include <utility>
 #include <vector>
-#include <iostream>
 
 namespace fhicl {
 template <typename T> struct is_vect { static constexpr bool value = false; };
@@ -29,6 +29,23 @@ template <typename... Ts> struct is_pair<std::pair<Ts...>> {
 template <typename T> struct is_seq {
   static constexpr bool value = (is_vect<T>::value || is_array<T>::value ||
                                  is_tuple<T>::value || is_pair<T>::value);
+  static std::string get_sequence_type() {
+    if (!value) {
+      return "non sequence type";
+    }
+    if (is_vect<T>::value) {
+      return "std::vector";
+    }
+    if (is_array<T>::value) {
+      return "std::array";
+    }
+    if (is_tuple<T>::value) {
+      return "std::tuple";
+    }
+    if (is_pair<T>::value) {
+      return "std::pair";
+    }
+  }
   static void test() {
     std::cout << "is_vect: " << is_vect<T>::value
               << ", is_array: " << is_array<T>::value

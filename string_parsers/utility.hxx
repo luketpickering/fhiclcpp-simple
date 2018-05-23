@@ -1,12 +1,12 @@
 #ifndef FHICLCPP_SIMPLE_STRING_PARSERS_UTILITY_HXX_SEEN
 #define FHICLCPP_SIMPLE_STRING_PARSERS_UTILITY_HXX_SEEN
 
+#include "string_parsers/exception.hxx"
+
 #include <algorithm>
 #include <iomanip>
 #include <map>
 #include <string>
-
-#include "exception.hxx"
 
 namespace fhicl {
 namespace string_parsers {

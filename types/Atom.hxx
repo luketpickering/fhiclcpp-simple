@@ -1,7 +1,7 @@
 #ifndef FHICLCPP_SIMPLE_TYPES_ATOM_HXX_SEEN
 #define FHICLCPP_SIMPLE_TYPES_ATOM_HXX_SEEN
 
-#include "Base.hxx"
+#include "types/Base.hxx"
 
 #include "string_parsers/from_string.hxx"
 #include "string_parsers/traits.hxx"
@@ -11,6 +11,8 @@
 
 namespace fhicl {
 class Atom : public Base {
+  void from(std::string const &str) { internal_rep = str; }
+
 public:
   template <typename T>
   typename std::enable_if<
@@ -31,8 +33,11 @@ public:
   };
   Atom(std::string const &str) { from(str); }
   Atom() { internal_rep = "@nil"; }
-  std::string as_string() { return as<std::string>(); }
-  void from(std::string const &str) { internal_rep = str; }
+  std::string to_string() { return as<std::string>(); }
+  std::string to_compact_string() { return as<std::string>(); }
+  std::string to_indented_string(size_t indent_level) {
+    return as<std::string>();
+  }
 };
 } // namespace fhicl
 

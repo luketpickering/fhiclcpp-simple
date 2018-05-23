@@ -1,12 +1,14 @@
 #ifndef FHICLCPP_SIMPLE_TYPES_COMPOSITE_TYPES_FROM_IMPL_HXX_SEEN
 #define FHICLCPP_SIMPLE_TYPES_COMPOSITE_TYPES_FROM_IMPL_HXX_SEEN
 
-#include "Atom.hxx"
-#include "Base.hxx"
-#include "ParameterSet.hxx"
-#include "Sequence.hxx"
+#include "types/Atom.hxx"
+#include "types/Base.hxx"
+#include "types/ParameterSet.hxx"
+#include "types/Sequence.hxx"
 
 #include "string_parsers/exception.hxx"
+
+#include <memory>
 
 void fhicl::Sequence::from(std::string const &str) {
   if (!str.size()) {
@@ -79,6 +81,28 @@ void fhicl::ParameterSet::from(std::string const &str) {
       internal_rep.insert({k, std::make_shared<Atom>(v)});
     }
   }
+}
 
-} // namespace fhicle
+bool fhicl::ParameterSet::is_key_to_sequence(fhicl::key_t const &key) {
+  if (!check_key(key)) {
+    return false;
+  }
+  std::shared_ptr<fhicl::Sequence> seq =
+      std::dynamic_pointer_cast<fhicl::Sequence>(internal_rep[key]);
+  return bool(seq);
+}
+
+template <typename T>
+typename std::enable_if<!std::is_same<T, fhicl::ParameterSet>::value &&
+                            fhicl::is_seq<T>::value,
+                        void>::type
+fhicl::ParameterSet::put(key_t const &key, T const &value) {
+  if (has_key(key)) {
+    throw cant_insert() << "[ERROR]: Cannot put with key: " << std::quoted(key)
+                        << " as that key already exists.";
+  }
+  internal_rep[key] =
+      std::make_shared<Sequence>(string_parsers::T2Str<T>(value));
+}
+
 #endif

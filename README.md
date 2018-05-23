@@ -1,2 +1,2 @@
 # fhiclcpp-simple
-Small, dependency-free FHICL parser
+Small, dependency-free FHICL c++ language bindings

@@ -1,9 +1,10 @@
 #include <cassert>
 #include <iostream>
 
-#include "exception.hxx"
-#include "from_string.hxx"
-#include "utility.hxx"
+#include "string_parsers/exception.hxx"
+#include "string_parsers/from_string.hxx"
+#include "string_parsers/to_string.hxx"
+#include "string_parsers/utility.hxx"
 
 using namespace fhicl;
 using namespace string_parsers;
@@ -195,5 +196,19 @@ int main() {
     assert((test_tup_s == std::tuple<std::string, std::string, std::string>{
                               "bla, bla", "bla", "bla"}));
     std::cout << "[PASSED] 3/3 tuple parsing tests." << std::endl;
+  }
+  {
+    std::vector<std::tuple<std::pair<std::string, std::string>, double>>
+        test_v_t_p{
+            std::tuple<std::pair<std::string, std::string>, double>{
+                std::pair<std::string, std::string>{"hello", "hello, hello"},
+                5},
+            std::tuple<std::pair<std::string, std::string>, double>{
+                std::pair<std::string, std::string>{"a", "b"}, 6}};
+    assert((T2Str<std::vector<
+                std::tuple<std::pair<std::string, std::string>, double>>>(
+                test_v_t_p) ==
+            "[[[\"hello\",\"hello, hello\"],5],[[\"a\",\"b\"],6]]"));
+    std::cout << "[PASSED] 1/1 to_string tests." << std::endl;
   }
 }

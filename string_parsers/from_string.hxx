@@ -1,8 +1,8 @@
 #ifndef FHICLCPP_SIMPLE_STRING_PARSERS_FROM_STRING_HXX_SEEN
 #define FHICLCPP_SIMPLE_STRING_PARSERS_FROM_STRING_HXX_SEEN
 
-#include "traits.hxx"
-#include "utility.hxx"
+#include "string_parsers/traits.hxx"
+#include "string_parsers/utility.hxx"
 
 #include <iomanip>
 #include <iostream>

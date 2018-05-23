@@ -12,10 +12,12 @@ protected:
   Base(std::string &&str) : internal_rep(std::move(str)) {}
 
   virtual ~Base(){};
+  virtual void from(std::string const &) = 0;
 
 public:
-  virtual std::string as_string() = 0;
-  virtual void from(std::string const &) = 0;
+  virtual std::string to_string() = 0;
+  virtual std::string to_compact_string() = 0;
+  virtual std::string to_indented_string(size_t indent_level) = 0;
 };
 } // namespace fhicl
 
