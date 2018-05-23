@@ -115,9 +115,9 @@ inline typename std::enable_if<is_tuple<T>::value, T>::type
 str2T(std::string const &str);
 
 template <typename T>
-inline std::vector<T> ParseToVect(std::string const &inp,
-                                  std::string const &delim, bool PushEmpty,
-                                  bool trimInput) {
+inline std::vector<T>
+ParseToVect(std::string const &inp, std::string const &delim, bool PushEmpty,
+            bool trimInput, std::map<char, char> extra_care_brackets = {}) {
   std::string inpCpy = inp;
   if (trimInput) {
     trim(inpCpy);
@@ -136,6 +136,13 @@ inline std::vector<T> ParseToVect(std::string const &inp,
       size_t nextBracket = std::string::npos;
       std::pair<char, char> brackets{'\0', '\0'};
       for (auto const &bracket_pair : type_care_brackets) {
+        size_t f = inpCpy.find_first_of(bracket_pair.first, bracketSearchZero);
+        if (f < nextBracket) {
+          nextBracket = f;
+          brackets = bracket_pair;
+        }
+      }
+      for (auto const &bracket_pair : extra_care_brackets) {
         size_t f = inpCpy.find_first_of(bracket_pair.first, bracketSearchZero);
         if (f < nextBracket) {
           nextBracket = f;

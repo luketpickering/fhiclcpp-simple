@@ -14,6 +14,9 @@ class Sequence : public Base {
 
 public:
   template <typename T> T at_as(size_t index) {
+    if (internal_rep.size() <= index) {
+      throw;
+    }
     return string_parsers::str2T<T>(internal_rep[index]->as_string());
   };
   template <typename T>
@@ -34,18 +37,7 @@ public:
     return ss.str();
   }
 
-  void from(std::string const &str) {
-    for (std::string const &outer_list_item :
-         string_parsers::str2T<std::vector<std::string>>(str)) {
-      if (string_parsers::is_table(outer_list_item)) {
-        // internal_rep.push_back(std::make_shared<ParameterSet>(outer_list_item));
-      } else if (string_parsers::is_sequence(outer_list_item)) {
-        internal_rep.push_back(std::make_shared<Sequence>(outer_list_item));
-      } else {
-        internal_rep.push_back(std::make_shared<Atom>(outer_list_item));
-      }
-    }
-  }
+  void from(std::string const &str);
 };
 } // namespace fhicl
 
