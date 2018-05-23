@@ -15,9 +15,9 @@ protected:
   virtual void from(std::string const &) = 0;
 
 public:
-  virtual std::string to_string() = 0;
-  virtual std::string to_compact_string() = 0;
-  virtual std::string to_indented_string(size_t indent_level) = 0;
+  virtual std::string to_string() const = 0;
+  virtual std::string to_compact_string() const = 0;
+  virtual std::string to_indented_string(size_t indent_level) const = 0;
 };
 } // namespace fhicl
 

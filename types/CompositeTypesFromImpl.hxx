@@ -83,12 +83,12 @@ void fhicl::ParameterSet::from(std::string const &str) {
   }
 }
 
-bool fhicl::ParameterSet::is_key_to_sequence(fhicl::key_t const &key) {
+bool fhicl::ParameterSet::is_key_to_sequence(fhicl::key_t const &key) const {
   if (!check_key(key)) {
     return false;
   }
-  std::shared_ptr<fhicl::Sequence> seq =
-      std::dynamic_pointer_cast<fhicl::Sequence>(internal_rep[key]);
+  std::shared_ptr<fhicl::Sequence const> seq =
+      std::dynamic_pointer_cast<fhicl::Sequence const>(internal_rep.at(key));
   return bool(seq);
 }
 
@@ -101,6 +101,7 @@ fhicl::ParameterSet::put(key_t const &key, T const &value) {
     throw cant_insert() << "[ERROR]: Cannot put with key: " << std::quoted(key)
                         << " as that key already exists.";
   }
+  idCache = 0;
   internal_rep[key] =
       std::make_shared<Sequence>(string_parsers::T2Str<T>(value));
 }

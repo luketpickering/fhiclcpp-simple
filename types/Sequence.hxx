@@ -15,20 +15,20 @@ class Sequence : public Base {
   void from(std::string const &str);
 
 public:
-  template <typename T> T at_as(size_t index) {
+  template <typename T> T at_as(size_t index) const {
     if (internal_rep.size() <= index) {
       throw;
     }
     return string_parsers::str2T<T>(internal_rep[index]->to_string());
   };
   template <typename T>
-  typename std::enable_if<is_seq<T>::value, T>::type as() {
+  typename std::enable_if<is_seq<T>::value, T>::type as() const {
     return string_parsers::str2T<T>(to_string());
   };
   Sequence(std::string const &str) : internal_rep() { from(str); }
   Sequence() : internal_rep() {}
 
-  std::string to_string() {
+  std::string to_string() const {
     std::stringstream ss("");
     ss << "[";
     for (size_t i = 0; i < internal_rep.size(); ++i) {
@@ -38,7 +38,7 @@ public:
     ss << "]";
     return ss.str();
   }
-  std::string to_compact_string() {
+  std::string to_compact_string() const {
     std::stringstream ss("");
     ss << "[";
     for (size_t i = 0; i < internal_rep.size(); ++i) {
@@ -48,7 +48,7 @@ public:
     ss << "]";
     return ss.str();
   }
-  std::string to_indented_string(size_t indent_level) {
+  std::string to_indented_string(size_t indent_level) const {
     std::stringstream ss("");
     ss << "[" << std::endl;
     for (size_t i = 0; i < internal_rep.size(); ++i) {

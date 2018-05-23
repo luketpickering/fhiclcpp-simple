@@ -23,12 +23,13 @@ class ParameterSet : public Base {
 
   ParameterSet *parent;
   ParameterSet *prolog;
+  ParameterSetID idCache;
 
   void from(std::string const &str);
 
-  bool valid_key(key_t const &key) { return true; }
+  bool valid_key(key_t const &key) const { return true; }
 
-  bool check_key(key_t const &key, bool throw_on_not_exist = false) {
+  bool check_key(key_t const &key, bool throw_on_not_exist = false) const {
     if (!key.size()) {
       throw null_key();
     }
@@ -45,7 +46,7 @@ class ParameterSet : public Base {
     return true;
   }
 
-  std::string get_fhicl_category(key_t const &key) {
+  std::string get_fhicl_category(key_t const &key) const {
     check_key(key, true);
     if (is_key_to_table(key)) {
       return "table";
@@ -57,15 +58,25 @@ class ParameterSet : public Base {
   }
 
 public:
-  ParameterSet(std::string const &str) : internal_rep(), parent(nullptr) {
+  ParameterSet(std::string const &str)
+      : internal_rep(), parent(nullptr), idCache(0) {
     from(str);
   }
   ParameterSet(ParameterSet const &other)
-      : internal_rep(other.internal_rep), parent(other.parent) {}
+      : internal_rep(other.internal_rep), parent(other.parent), idCache(0) {}
   ParameterSet() : internal_rep(), parent(nullptr) {}
 
-  bool is_empty() { return internal_rep.size(); }
+  bool is_empty() const { return internal_rep.size(); }
+
   ParameterSetID id() {
+    if (idCache) {
+      return idCache;
+    }
+    idCache = dynamic_cast<ParameterSet const *>(this)->id();
+    return idCache;
+  }
+
+  ParameterSetID id() const {
     std::string md = md5(to_string());
     ParameterSetID ID = 1;
     while (md.size()) {
@@ -76,7 +87,7 @@ public:
     return ID;
   }
 
-  std::string to_string() {
+  std::string to_string() const {
     std::stringstream ss("");
     for (auto ip_it = internal_rep.begin(); ip_it != internal_rep.end();
          ++ip_it) {
@@ -88,25 +99,27 @@ public:
         ss << ip_it->first << ": " << ip_it->second->to_string() << " ";
       }
     }
-    return ss.str();
+    std::string str_rep = ss.str();
+    return str_rep.substr(0, str_rep.size() - 1);
   }
-  std::string to_compact_string() {
+  std::string to_compact_string() const {
     std::stringstream ss("");
-    for (auto ip_it = internal_rep.begin(); ip_it != internal_rep.end();
+    for (auto ip_it = internal_rep.cbegin(); ip_it != internal_rep.cend();
          ++ip_it) {
-      std::shared_ptr<ParameterSet> ps =
-          std::dynamic_pointer_cast<ParameterSet>(ip_it->second);
+      std::shared_ptr<ParameterSet const> ps =
+          std::dynamic_pointer_cast<ParameterSet const>(ip_it->second);
       if (ps) {
         ss << ip_it->first << ": @id::" << ps->id() << " ";
       } else {
         ss << ip_it->first << ": " << ip_it->second->to_string() << " ";
       }
     }
-    return ss.str();
+    std::string str_rep = ss.str();
+    return str_rep.substr(0, str_rep.size() - 1);
   }
-  std::string to_indented_string(size_t indent_level = 0) {
+  std::string to_indented_string(size_t indent_level = 0) const {
     std::stringstream ss("");
-    for (auto ip_it = internal_rep.begin(); ip_it != internal_rep.end();
+    for (auto ip_it = internal_rep.cbegin(); ip_it != internal_rep.cend();
          ++ip_it) {
       for (size_t i_it = 0; i_it < indent_level; ++i_it) {
         ss << " ";
@@ -131,49 +144,49 @@ public:
     }
     return ss.str();
   }
-  std::vector<key_t> get_names() {
+  std::vector<key_t> get_names() const {
     std::vector<key_t> names;
-    for (auto ip_it = internal_rep.begin(); ip_it != internal_rep.end();
+    for (auto ip_it = internal_rep.cbegin(); ip_it != internal_rep.cend();
          ++ip_it) {
       names.push_back(ip_it->first);
     }
     return names;
   }
-  std::vector<key_t> get_pset_names() {
+  std::vector<key_t> get_pset_names() const {
     std::vector<key_t> names;
-    for (auto ip_it = internal_rep.begin(); ip_it != internal_rep.end();
+    for (auto ip_it = internal_rep.cbegin(); ip_it != internal_rep.cend();
          ++ip_it) {
-      std::shared_ptr<ParameterSet> ps =
-          std::dynamic_pointer_cast<ParameterSet>(ip_it->second);
+      std::shared_ptr<ParameterSet const> ps =
+          std::dynamic_pointer_cast<ParameterSet const>(ip_it->second);
       if (ps) {
         names.push_back(ip_it->first);
       }
     }
     return names;
   }
-  std::string get_src_info(key_t const &key) { return "dummy.fcl:null"; }
-  bool has_key(key_t const &key) { return check_key(key); }
-  bool is_key_to_atom(key_t const &key) {
+  std::string get_src_info(key_t const &key) const { return "dummy.fcl:null"; }
+  bool has_key(key_t const &key) const { return check_key(key); }
+  bool is_key_to_atom(key_t const &key) const {
     if (!check_key(key)) {
       return false;
     }
-    std::shared_ptr<Atom> atm =
-        std::dynamic_pointer_cast<Atom>(internal_rep[key]);
+    std::shared_ptr<Atom const> atm =
+        std::dynamic_pointer_cast<Atom const>(internal_rep.at(key));
     return bool(atm);
   }
-  bool is_key_to_sequence(key_t const &key);
-  bool is_key_to_table(key_t const &key) {
+  bool is_key_to_sequence(key_t const &key) const;
+  bool is_key_to_table(key_t const &key) const {
     if (!check_key(key)) {
       return false;
     }
-    std::shared_ptr<ParameterSet> ps =
-        std::dynamic_pointer_cast<ParameterSet>(internal_rep[key]);
+    std::shared_ptr<ParameterSet const> ps =
+        std::dynamic_pointer_cast<ParameterSet const>(internal_rep.at(key));
     return bool(ps);
   }
   // get table
   template <typename T>
   typename std::enable_if<std::is_same<T, ParameterSet>::value, T>::type
-  get(key_t const &key) {
+  get(key_t const &key) const {
     check_key(key, true);
     if (!is_key_to_table(key)) {
       throw wrong_fhicl_category()
@@ -181,14 +194,14 @@ public:
           << " as a fhicl table (fhicl::ParameterSet), but it corresponds to a "
           << std::quoted(get_fhicl_category(key));
     }
-    std::shared_ptr<ParameterSet> ps =
-        std::dynamic_pointer_cast<ParameterSet>(internal_rep[key]);
+    std::shared_ptr<ParameterSet const> ps =
+        std::dynamic_pointer_cast<ParameterSet const>(internal_rep.at(key));
     return *ps;
   }
   // get other
   template <typename T>
   typename std::enable_if<!std::is_same<T, ParameterSet>::value, T>::type
-  get(key_t const &key) {
+  get(key_t const &key) const {
     check_key(key, true);
 
     if (is_seq<T>::value && !is_key_to_sequence(key)) {
@@ -217,7 +230,7 @@ public:
              "(ParameterSet)";
     }
 
-    return string_parsers::str2T<T>(internal_rep[key]->to_string());
+    return string_parsers::str2T<T>(internal_rep.at(key)->to_string());
   };
 
   template <typename T> T get(key_t const &key, T def) {
@@ -239,7 +252,7 @@ public:
       return false;
     }
     try {
-      rtn = string_parsers::str2T<T>(internal_rep[key]->to_string());
+      rtn = string_parsers::str2T<T>(internal_rep.at(key)->to_string());
     } catch (fhicl::string_parsers::fhicl_cpp_simple_except &e) { // parser fail
       return false;
     } catch (fhicl::fhicl_cpp_simple_except &e) { // type fail
@@ -260,6 +273,7 @@ public:
       throw cant_insert() << "[ERROR]: Cannot put with key: "
                           << std::quoted(key) << " as that key already exists.";
     }
+    idCache = 0;
     internal_rep[key] = std::make_shared<T>(value);
   }
   // put sequence
@@ -276,6 +290,7 @@ public:
       throw cant_insert() << "[ERROR]: Cannot put with key: "
                           << std::quoted(key) << " as that key already exists.";
     }
+    idCache = 0;
     internal_rep[key] = std::make_shared<Atom>(string_parsers::T2Str<T>(value));
   }
 };
