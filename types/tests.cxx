@@ -44,8 +44,6 @@ int main(int argc, char const *argv[]) {
     ParameterSet d;
     d.put("e", std::array<double, 3>{5, 5, 5});
     a.put("d", d);
-    std::cout << "[INFO]: Built parameter set: { " << a.to_string() << " }."
-              << std::endl;
     std::cout << "[PASSED] 5/5 ParameterSet put tests" << std::endl;
   }
   {
@@ -119,19 +117,23 @@ int main(int argc, char const *argv[]) {
       assert(!threw);
     }
 
-    std::cout << "[PASSED] 7/7 ParameterSet get tests" << std::endl;
+    std::cout << "[PASSED] 5/5 ParameterSet get tests" << std::endl;
+  }
+  ParameterSet ap(
+      "{a: 5 b:  [5,6,7]    c: [a, \"bla, bla\", 5 ] d: {e: [5,5,5]}   }");
+  {
+
+    assert((ap.get<double>("a") == 5));
+    assert(
+        (ap.get<std::array<double, 3>>("b") == std::array<double, 3>{5, 6, 7}));
+    assert((ap.get<std::tuple<char, std::string, int>>("c") ==
+            std::tuple<long, std::string, int>{'a', "bla, bla", 5}));
+    ParameterSet d = ap.get<ParameterSet>("d");
+    assert((d.get<std::vector<int>>("e") == std::vector<int>{5, 5, 5}));
+    std::cout << "[PASSED] 4/4 ParameterSet parse tests" << std::endl;
   }
   {
-    ParameterSet a(
-        "{a: 5 b:  [5,6,7]    c: [a, \"bla, bla\", 5 ] d: {e: [5,5,5]}   }");
-    assert((a.get<double>("a") == 5));
-    assert(
-        (a.get<std::array<double, 3>>("b") == std::array<double, 3>{5, 6, 7}));
-    assert((a.get<std::tuple<char, std::string, int>>("c") ==
-            std::tuple<long, std::string, int>{'a', "bla, bla", 5}));
-    ParameterSet d = a.get<ParameterSet>("d");
-    assert((d.get<std::vector<int>>("e") == std::vector<int>{5, 5, 5}));
-
-    std::cout << "[PASSED] 4/4 ParameterSet parse tests" << std::endl;
+    assert((ap.id() == a.id()));
+    std::cout << "[PASSED] 1/1 ParameterSet id tests" << std::endl;
   }
 }
