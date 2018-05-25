@@ -125,6 +125,16 @@ size_t find_matching_bracket(std::string const &str, char open_bracket = '{',
   return next_match;
 }
 
+std::string ensure_trailing_slash(std::string const &str) {
+  if (!str.size()) {
+    return str;
+  }
+  if (str.back() != '/') {
+    return str + "/";
+  }
+  return str;
+}
+
 } // namespace string_parsers
 } // namespace fhicl
 

@@ -30,9 +30,12 @@ int main() {
       assert(true);
       threw = true;
     }
-
     assert(threw);
-    std::cout << "[PASSED] 5/5 Bracket matching and table/sequence string-type "
+
+    std::string sequence_like_odd_bracket = "[4,\"{\",6,7]";
+    assert(is_sequence(sequence_like_odd_bracket));
+
+    std::cout << "[PASSED] 6/6 Bracket matching and table/sequence string-type "
                  "deduction tests."
               << std::endl;
   }
@@ -93,7 +96,10 @@ int main() {
     std::string test_str_w_quotes = str2T<std::string>("\"bla \"");
     assert((test_str_w_quotes == "bla "));
 
-    std::cout << "[PASSED] 3/3 string parsing tests." << std::endl;
+    std::string test_str_w_odd_bracket = str2T<std::string>("\"bla{ \"");
+    assert((test_str_w_odd_bracket == "bla{ "));
+
+    std::cout << "[PASSED] 4/4 string parsing tests." << std::endl;
   }
   {
     bool trait_v = is_vect<std::vector<double>>::value;
@@ -143,7 +149,12 @@ int main() {
     assert((test_v_double_nest == std::vector<std::vector<std::vector<double>>>(
                                       {{{1, 2, 3}, {4, 5, 6}}, {{8}, {9}}})));
 
-    std::cout << "[PASSED] 5/5 vector parsing tests." << std::endl;
+    auto test_str_w_odd_bracket = str2T<std::vector<std::string>>(
+        "[\"bla{ \", \"{}\", \"}\",\"[\",\"]\"]");
+    assert((test_str_w_odd_bracket ==
+            std::vector<std::string>{"bla{ ", "{}", "}", "[", "]"}));
+
+    std::cout << "[PASSED] 6/6 vector parsing tests." << std::endl;
   }
   {
     std::pair<double, std::string> test_p_d_s =

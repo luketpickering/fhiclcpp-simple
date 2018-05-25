@@ -19,4 +19,4 @@ table: {
 table.int: 10
 bla: "stringy string"
 table.tablevectormember[4]: a
-table.tablevectormember[4]: @nil
+table.tablevectormember[10]: g

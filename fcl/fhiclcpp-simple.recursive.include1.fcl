@@ -1,0 +1,2 @@
+#include "fhiclcpp-simple.recursive.include2.fcl"
+a: a

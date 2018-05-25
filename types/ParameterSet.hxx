@@ -1,6 +1,7 @@
 #ifndef FHICLCPP_SIMPLE_TYPES_PARAMETER_SET_HXX_SEEN
 #define FHICLCPP_SIMPLE_TYPES_PARAMETER_SET_HXX_SEEN
 
+#include "types/Atom.hxx"
 #include "types/Base.hxx"
 #include "types/exception.hxx"
 
@@ -18,16 +19,109 @@ namespace fhicl {
 typedef uint32_t ParameterSetID;
 typedef std::string key_t;
 
-class ParameterSet : public Base {
-  std::map<std::string, std::shared_ptr<Base>> internal_rep;
+class fhicl_doc;
+class fhicl_doc_line_point;
 
-  ParameterSet *parent;
-  ParameterSet *prolog;
+class ParameterSet : public Base {
+
+  friend ParameterSet
+  recursive_build_fhicl(fhicl_doc &doc, ParameterSet const &,
+                        ParameterSet const &, fhicl_doc_line_point,
+                        fhicl_doc_line_point, bool, key_t const &);
+
+  std::map<std::string, std::shared_ptr<Base>> internal_rep;
+  std::map<std::string, std::vector<std::string>> history;
+
   ParameterSetID idCache;
+
+  void added_key(key_t const &key) {
+    std::stringstream ss("");
+    ss << "Added a " << std::quoted(get_fhicl_category(key))
+       << " via ParameterSet interface";
+    history[key].push_back(ss.str());
+  }
+  void overrode_key(key_t const &key,
+                    size_t seq_index = std::numeric_limits<size_t>::max()) {
+    std::stringstream ss("");
+    if (seq_index == std::numeric_limits<size_t>::max()) {
+      ss << "Overriden with a " << std::quoted(get_fhicl_category(key))
+         << " via ParameterSet interface";
+    } else {
+      std::stringstream ss2("");
+      ss2 << key << "[" << seq_index << "]";
+      ss << "Overrode element " << seq_index << " with a "
+         << std::quoted(get_fhicl_category(ss2.str()))
+         << " via ParameterSet interface";
+    }
+
+    history[key].push_back(ss.str());
+  }
+  void added_key_for_extension(key_t const &key, key_t const &full_key) {
+    std::stringstream ss("");
+    ss << "Added a " << std::quoted(get_fhicl_category(key))
+       << " via ParameterSet interface for extension to key: "
+       << std::quoted(full_key);
+    history[key].push_back(ss.str());
+  }
+
+  template <typename T>
+  typename std::enable_if<std::is_same<T, ParameterSet>::value, void>::type
+  put_into_internal_rep(key_t const &key, T const &value);
+  template <typename T>
+  typename std::enable_if<!std::is_same<T, ParameterSet>::value, void>::type
+  put_into_internal_rep(key_t const &key, T const &value);
+
+  template <typename T>
+  void put_with_custom_history(key_t const &key, T const &value,
+                               std::string hist_entry);
 
   void from(std::string const &str);
 
-  bool valid_key(key_t const &key) const { return true; }
+  bool valid_key(key_t const &key) const {
+    char front = key.front();
+    if ((!std::isalpha(front)) && (front != '_')) {
+      return false;
+    }
+    if (key.back() == '.') {
+      return false;
+    }
+    if (key.find_first_of(" \":\'@(){}") != std::string::npos) {
+      return false;
+    }
+    size_t first_open_bracket = key.find_first_of("[");
+    while (first_open_bracket != std::string::npos) {
+      size_t matching_bracket = string_parsers::find_matching_bracket(
+          key, '[', ']', first_open_bracket);
+      if (matching_bracket == std::string::npos) {
+        return false;
+      }
+      first_open_bracket = key.find_first_of("[", matching_bracket);
+    }
+    return true;
+  }
+
+  struct key_index_pair_t {
+    key_t key;
+    size_t index;
+    bool has_index() { return index != std::numeric_limits<size_t>::max(); }
+  };
+
+  key_index_pair_t get_key_index(key_t key) const {
+    size_t first_open_bracket = key.find_first_of("[");
+    size_t index = std::numeric_limits<size_t>::max();
+    if (first_open_bracket != std::string::npos) {
+      size_t matching_bracket = string_parsers::find_matching_bracket(
+          key, '[', ']', first_open_bracket);
+      index = string_parsers::str2T<size_t>(key.substr(
+          first_open_bracket + 1, first_open_bracket + 1 - matching_bracket));
+    }
+    return {key.substr(0, first_open_bracket), index};
+  }
+
+  std::shared_ptr<Base> &get_value_recursive(key_t const &key,
+                                             bool allow_extend = false,
+                                             bool allow_override = false);
+  std::shared_ptr<Base> const &get_value_recursive(key_t const &key) const;
 
   bool check_key(key_t const &key, bool throw_on_not_exist = false) const {
     if (!key.size()) {
@@ -36,7 +130,7 @@ class ParameterSet : public Base {
     if (!valid_key(key)) {
       throw invalid_key() << "[ERROR]: Invalid key " << std::quoted(key);
     }
-    if (internal_rep.find(key) == internal_rep.end()) {
+    if (!get_value_recursive(key)) {
       if (throw_on_not_exist) {
         throw nonexistant_key() << "[ERROR]: Key " << std::quoted(key)
                                 << " does not exist in parameter set.";
@@ -46,25 +140,20 @@ class ParameterSet : public Base {
     return true;
   }
 
+  std::string get_fhicl_category(std::shared_ptr<Base const> el) const;
+
   std::string get_fhicl_category(key_t const &key) const {
     check_key(key, true);
-    if (is_key_to_table(key)) {
-      return "table";
-    }
-    if (is_key_to_table(key)) {
-      return "sequence";
-    }
-    return "atom";
+    return get_fhicl_category(get_value_recursive(key));
   }
 
 public:
-  ParameterSet(std::string const &str)
-      : internal_rep(), parent(nullptr), idCache(0) {
+  ParameterSet(std::string const &str) : internal_rep(), idCache(0) {
     from(str);
   }
   ParameterSet(ParameterSet const &other)
-      : internal_rep(other.internal_rep), parent(other.parent), idCache(0) {}
-  ParameterSet() : internal_rep(), parent(nullptr) {}
+      : internal_rep(other.internal_rep), idCache(other.idCache) {}
+  ParameterSet() : internal_rep(), idCache(0) {}
 
   bool is_empty() const { return internal_rep.size(); }
 
@@ -111,7 +200,7 @@ public:
       if (ps) {
         ss << ip_it->first << ": @id::" << ps->id() << " ";
       } else {
-        ss << ip_it->first << ": " << ip_it->second->to_string() << " ";
+        ss << ip_it->first << ": " << ip_it->second->to_compact_string() << " ";
       }
     }
     std::string str_rep = ss.str();
@@ -134,13 +223,43 @@ public:
       } else {
         ss << ip_it->first << ": {" << std::endl
            << ip_it->second->to_indented_string(indent_level +
-                                                ip_it->first.size() + 4);
+                                                ip_it->first.size() + 4)
+           << std::endl;
         for (size_t i_it = 0; i_it < (indent_level + ip_it->first.size() + 2);
              ++i_it) {
           ss << " ";
         }
         ss << "}";
       }
+    }
+    return ss.str();
+  }
+  std::string to_indented_string_with_src_info(size_t indent_level = 0) const {
+    std::stringstream ss("");
+    for (auto ip_it = internal_rep.cbegin(); ip_it != internal_rep.cend();
+         ++ip_it) {
+      for (size_t i_it = 0; i_it < indent_level; ++i_it) {
+        ss << " ";
+      }
+      if (is_key_to_atom(ip_it->first)) {
+        ss << ip_it->first << ": "
+           << ip_it->second->to_indented_string_with_src_info(0) << std::endl;
+      } else if (is_key_to_sequence(ip_it->first)) {
+        ss << ip_it->first << ": "
+           << ip_it->second->to_indented_string_with_src_info(
+                  indent_level + ip_it->first.size() + 2);
+      } else {
+        ss << ip_it->first << ": {" << std::endl
+           << ip_it->second->to_indented_string_with_src_info(
+                  indent_level + ip_it->first.size() + 4)
+           << std::endl;
+        for (size_t i_it = 0; i_it < (indent_level + ip_it->first.size() + 2);
+             ++i_it) {
+          ss << " ";
+        }
+        ss << "}";
+      }
+      ss << "-- <" << get_src_info(ip_it->first) << ">" << std::endl;
     }
     return ss.str();
   }
@@ -164,14 +283,37 @@ public:
     }
     return names;
   }
-  std::string get_src_info(key_t const &key) const { return "dummy.fcl:null"; }
+  std::string get_src_info(key_t const &key) const {
+    if (history.find(key) == history.end()) {
+      return "";
+    }
+    std::stringstream ss("");
+    for (size_t h_it = 0; h_it < history.at(key).size(); ++h_it) {
+      ss << history.at(key)[h_it]
+         << ((h_it + 1 == history.at(key).size()) ? "" : ", ");
+    }
+    return ss.str();
+  }
+  std::string history_to_string() const {
+    std::stringstream ss("");
+    for (auto &kvpair : history) {
+      ss << kvpair.first << ": ";
+      for (size_t h_it = 0; h_it < history.at(kvpair.first).size(); ++h_it) {
+        ss << history.at(kvpair.first)[h_it]
+           << ((h_it + 1 == history.at(kvpair.first).size()) ? "" : ", ");
+      }
+      ss << std::endl;
+    }
+    return ss.str();
+  }
+
   bool has_key(key_t const &key) const { return check_key(key); }
   bool is_key_to_atom(key_t const &key) const {
     if (!check_key(key)) {
       return false;
     }
     std::shared_ptr<Atom const> atm =
-        std::dynamic_pointer_cast<Atom const>(internal_rep.at(key));
+        std::dynamic_pointer_cast<Atom const>(get_value_recursive(key));
     return bool(atm);
   }
   bool is_key_to_sequence(key_t const &key) const;
@@ -180,7 +322,7 @@ public:
       return false;
     }
     std::shared_ptr<ParameterSet const> ps =
-        std::dynamic_pointer_cast<ParameterSet const>(internal_rep.at(key));
+        std::dynamic_pointer_cast<ParameterSet const>(get_value_recursive(key));
     return bool(ps);
   }
   // get table
@@ -207,7 +349,8 @@ public:
     if (is_seq<T>::value && !is_key_to_sequence(key)) {
       throw wrong_fhicl_category()
           << "[ERROR]: Attempted to retrieve key: " << std::quoted(key)
-          << " as a fhicl sequence(" << is_seq<T>::get_sequence_type()
+          << " as a fhicl sequence ("
+          << std::quoted(is_seq<T>::get_sequence_type())
           << "), but it corresponds to a "
           << std::quoted(get_fhicl_category(key));
     }
@@ -220,7 +363,8 @@ public:
     if (is_seq<T>::value && is_key_to_table(key)) {
       throw wrong_fhicl_category()
           << "[ERROR]: Attempted to retrieve key: " << std::quoted(key)
-          << " as a fhicl sequence(" << is_seq<T>::get_sequence_type()
+          << " as a fhicl sequence ("
+          << std::quoted(is_seq<T>::get_sequence_type())
           << "), but it corresponds to a fhicl table (ParameterSet)";
     }
     if (!is_seq<T>::value && is_key_to_table(key)) {
@@ -265,33 +409,75 @@ public:
     return true;
   };
 
-  // put table
+  template <typename T> void put(key_t const &key, T const &value) {
+    if (has_key(key)) {
+      throw cant_insert() << "[ERROR]: Cannot put with key: "
+                          << std::quoted(key) << " as that key already exists.";
+    }
+    put_or_replace(key, value);
+  }
+
+  // put nil
+  void put(key_t const &key) {
+    if (has_key(key)) {
+      throw cant_insert() << "[ERROR]: Cannot put with key: "
+                          << std::quoted(key) << " as that key already exists.";
+    }
+    put_or_replace(key, "@nil");
+  }
+
+  template <typename T> void put_or_replace(key_t const &key, T const &value) {
+    bool had_key = has_key(key);
+    put_into_internal_rep(key, value);
+    std::cout << "Had_key ? " << had_key << ": " << key << std::endl;
+    if (had_key) {
+      added_key(key);
+    } else {
+      overrode_key(key);
+    }
+  }
+
   template <typename T>
   typename std::enable_if<std::is_same<T, ParameterSet>::value, void>::type
-  put(key_t const &key, T const &value) {
-    if (has_key(key)) {
-      throw cant_insert() << "[ERROR]: Cannot put with key: "
-                          << std::quoted(key) << " as that key already exists.";
+  put_or_replace_compatible(key_t const &key, T const &value) {
+    if (has_key(key) && !is_key_to_table(key)) {
+      throw cant_insert()
+          << "[ERROR]: Cannot put fhicl table (ParameterSet) with key: "
+          << std::quoted(key)
+          << " as that key already exists and is of non-compatible type: "
+          << std::quoted(get_fhicl_category(key));
     }
-    idCache = 0;
-    internal_rep[key] = std::make_shared<T>(value);
+    put_or_replace(key, value);
   }
-  // put sequence
+
   template <typename T>
-  typename std::enable_if<
-      !std::is_same<T, ParameterSet>::value && is_seq<T>::value, void>::type
-  put(key_t const &key, T const &value);
-  // put atom
-  template <typename T>
-  typename std::enable_if<
-      !std::is_same<T, ParameterSet>::value && !is_seq<T>::value, void>::type
-  put(key_t const &key, T const &value) {
+  typename std::enable_if<!std::is_same<T, ParameterSet>::value, void>::type
+  put_or_replace_compatible(key_t const &key, T const &value) {
     if (has_key(key)) {
-      throw cant_insert() << "[ERROR]: Cannot put with key: "
-                          << std::quoted(key) << " as that key already exists.";
+      if (is_seq<T>::value && !is_key_to_sequence(key)) {
+        throw cant_insert()
+            << "[ERROR]: Cannot put fhicl sequence ("
+            << std::quoted(is_seq<T>::get_sequence_type())
+            << ") with key: " << std::quoted(key)
+            << " as that key already exists and is of non-compatible type: "
+            << std::quoted(get_fhicl_category(key));
+      }
+      if (!is_seq<T>::value && is_key_to_sequence(key)) {
+        throw cant_insert()
+            << "[ERROR]: Cannot put fhicl atom with key: " << std::quoted(key)
+            << " as that key already exists and is of non-compatible type: "
+            << std::quoted(get_fhicl_category(key));
+      }
     }
-    idCache = 0;
-    internal_rep[key] = std::make_shared<Atom>(string_parsers::T2Str<T>(value));
+    put_or_replace(key, value);
+  }
+
+  bool erase(key_t const &key) {
+    if (!has_key(key)) {
+      return false;
+    }
+    internal_rep.erase(key);
+    history.erase(key);
   }
 };
 

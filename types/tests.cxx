@@ -1,11 +1,11 @@
 #include <cassert>
 #include <iostream>
 
-#include "Atom.hxx"
-#include "ParameterSet.hxx"
-#include "Sequence.hxx"
+#include "types/Atom.hxx"
+#include "types/ParameterSet.hxx"
+#include "types/Sequence.hxx"
 
-#include "CompositeTypesFromImpl.hxx"
+#include "types/CompositeTypesSharedImpl.hxx"
 
 using namespace fhicl;
 
@@ -135,5 +135,15 @@ int main(int argc, char const *argv[]) {
   {
     assert((ap.id() == a.id()));
     std::cout << "[PASSED] 1/1 ParameterSet id tests" << std::endl;
+  }
+  {
+    ParameterSet b;
+    b.put("e.f.g[1].h", std::vector<double>{1, 2, 3});
+    ParameterSet c("{ e: { f: { g: [@nil, { h: [1,2,3 ] } ] } } }");
+    assert((b.id() == c.id()));
+    std::cout << "[PASSED] 1/1 Automatic put extension tests" << std::endl;
+    std::cout << b.to_indented_string_with_src_info() << std::endl;
+    std::cout << b.to_indented_string() << std::endl;
+    std::cout << b.history_to_string() << std::endl;
   }
 }

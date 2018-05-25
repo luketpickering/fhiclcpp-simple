@@ -18,6 +18,8 @@ public:
   virtual std::string to_string() const = 0;
   virtual std::string to_compact_string() const = 0;
   virtual std::string to_indented_string(size_t indent_level) const = 0;
+  virtual std::string to_indented_string_with_src_info(size_t indent_level) const = 0;
+
 };
 } // namespace fhicl
 

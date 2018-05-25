@@ -2,10 +2,10 @@ cmake_minimum_required (VERSION 2.6 FATAL_ERROR)
 
 project(fhiclcpp_simple)
 
-include(ExternalProject)
+enable_testing()
 
 set (fhiclcpp_simple_VERSION_MAJOR 0)
-set (fhiclcpp_simple_VERSION_MINOR 3)
+set (fhiclcpp_simple_VERSION_MINOR 1)
 set (fhiclcpp_simple_VERSION_REVISION 0)
 
 set (fhiclcpp_simple_VERSION_STRING "v${fhiclcpp_simple_VERSION_MAJOR}r${fhiclcpp_simple_VERSION_MINOR}p${fhiclcpp_simple_VERSION_REVISION}")
@@ -46,3 +46,13 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(string_parsers)
 add_subdirectory(types)
+add_subdirectory(fhiclcpp)
+
+configure_file(cmake/setup.sh.in
+  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" @ONLY)
+install(FILES
+  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" DESTINATION
+  ${CMAKE_INSTALL_PREFIX})
+
+file(GLOB EXAMPLE_FCL fcl/*.fcl)
+install(PROGRAMS ${EXAMPLE_FCL} DESTINATION ${CMAKE_INSTALL_PREFIX}/fcl)
