@@ -16,7 +16,7 @@ std::shared_ptr<Base> deep_copy_value(std::shared_ptr<Base> const original);
 class Sequence : public Base {
   std::vector<std::shared_ptr<Base>> internal_rep;
 
-  void from(std::string const &str);
+  inline void from(std::string const &str);
 
 public:
   std::shared_ptr<Base> &get_or_extend_get_value(size_t idx) {

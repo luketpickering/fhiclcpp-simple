@@ -77,29 +77,29 @@ class ParameterSet : public Base {
   }
 
   template <typename T>
-  typename std::enable_if<std::is_same<Base, T>::value, void>::type
+  inline typename std::enable_if<std::is_same<Base, T>::value, void>::type
   put_into_internal_rep(key_t const &key, T const &value);
   template <typename T>
-  typename std::enable_if<(!std::is_same<Base, T>::value) &&
+  inline typename std::enable_if<(!std::is_same<Base, T>::value) &&
                               std::is_base_of<Base, T>::value,
                           void>::type
   put_into_internal_rep(key_t const &key, T const &value);
   template <typename T>
-  typename std::enable_if<(!std::is_base_of<Base, T>::value) &&
+  inline typename std::enable_if<(!std::is_base_of<Base, T>::value) &&
                               (!std::is_base_of<Base, T>::value),
                           void>::type
   put_into_internal_rep(key_t const &key, T const &value);
 
   template <typename T>
-  void put_with_custom_history(key_t const &key, T const &value,
+  inline void put_with_custom_history(key_t const &key, T const &value,
                                std::string const &hist_entry);
 
   template <typename T>
-  typename std::enable_if<std::is_base_of<Base, T>::value, void>::type
+  inline typename std::enable_if<std::is_base_of<Base, T>::value, void>::type
   put_with_custom_history(key_t const &key, std::shared_ptr<T> &&value_ptr,
                           std::string const &hist_entry);
 
-  void from(std::string const &str);
+  inline void from(std::string const &str);
 
   bool valid_key(key_t const &key) const {
     char front = key.front();
@@ -221,7 +221,7 @@ public:
     }
     // if we can't use the cache, we also cannot update it as this is a const
     // method.
-    std::string md = fhiclcpp::md5(to_string());
+    std::string md = md5(to_string());
     ParameterSetID ID = 1;
     while (md.size()) {
       ID *= string_parsers::str2T<ParameterSetID>(std::string("0x") +

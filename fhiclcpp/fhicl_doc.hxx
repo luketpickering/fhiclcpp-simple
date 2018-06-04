@@ -35,11 +35,13 @@ struct fhicl_doc_line_point {
   static fhicl_doc_line_point begin() { return fhicl_doc_line_point{0, 0}; }
 };
 
-std::ostream &operator<<(std::ostream &os, fhicl_doc_line_point const &lp) {
+inline std::ostream &operator<<(std::ostream &os,
+                                fhicl_doc_line_point const &lp) {
   return os << "{ l: " << lp.line_no << ", c:" << lp.character << " }";
 }
 
-bool operator<(fhicl_doc_line_point const &l, fhicl_doc_line_point const &r) {
+inline bool operator<(fhicl_doc_line_point const &l,
+                      fhicl_doc_line_point const &r) {
   if (l.line_no < r.line_no) {
     return true;
   } else if (l.line_no == r.line_no) {
@@ -53,16 +55,20 @@ bool operator<(fhicl_doc_line_point const &l, fhicl_doc_line_point const &r) {
   }
   return false;
 }
-bool operator==(fhicl_doc_line_point const &l, fhicl_doc_line_point const &r) {
+inline bool operator==(fhicl_doc_line_point const &l,
+                       fhicl_doc_line_point const &r) {
   return !(l < r) && !(r < l);
 }
-bool operator!=(fhicl_doc_line_point const &l, fhicl_doc_line_point const &r) {
+inline bool operator!=(fhicl_doc_line_point const &l,
+                       fhicl_doc_line_point const &r) {
   return !(l == r);
 }
-bool operator>(fhicl_doc_line_point const &l, fhicl_doc_line_point const &r) {
+inline bool operator>(fhicl_doc_line_point const &l,
+                      fhicl_doc_line_point const &r) {
   return !((l < r) || (l == r));
 }
-bool operator>=(fhicl_doc_line_point const &l, fhicl_doc_line_point const &r) {
+inline bool operator>=(fhicl_doc_line_point const &l,
+                       fhicl_doc_line_point const &r) {
   return !(l < r);
 }
 
@@ -82,7 +88,7 @@ struct fhicl_doc_line {
 
 class fhicl_doc;
 
-fhicl_doc read_doc(std::string const &filename);
+inline fhicl_doc read_doc(std::string const &filename);
 
 class fhicl_doc : private std::vector<fhicl_doc_line> {
   std::vector<std::string> filenames;
@@ -241,7 +247,7 @@ public:
       return true;
     }
   }
-// #define DEBUG_ARE_EQUIVALENT
+  // #define DEBUG_ARE_EQUIVALENT
   bool are_equivalent(fhicl_doc_line_point l, fhicl_doc_line_point r) {
     l = validate_line_point(l);
     r = validate_line_point(r);
@@ -370,7 +376,7 @@ public:
     return validate_line_point(lp);
   }
 
-// #define DEBUG_REWIND
+  // #define DEBUG_REWIND
   fhicl_doc_line_point rewind(fhicl_doc_line_point lp, size_t n = 1) const {
     if (lp.isend()) {
       lp = get_last_line_point();
@@ -472,7 +478,7 @@ public:
     return lp;
   }
 
-// #define DEBUG_ADVANCE
+  // #define DEBUG_ADVANCE
 
   fhicl_doc_line_point advance(fhicl_doc_line_point lp, size_t n = 1) const {
 
@@ -842,7 +848,7 @@ public:
 std::string indent = "";
 #endif
 
-fhicl_doc_line_point find_matching_bracket(
+inline fhicl_doc_line_point find_matching_bracket(
     fhicl_doc const &doc, char open_bracket = '{', char close_bracket = '}',
     fhicl_doc_line_point begin = fhicl_doc_line_point::begin()) {
   begin = doc.validate_line_point(begin);
@@ -975,9 +981,9 @@ fhicl_doc_line_point find_matching_bracket(
 
 // #define DEBUG_GET_LIST_ELEMENTS
 
-std::vector<fhicl_doc_range> get_list_elements(fhicl_doc const &doc,
-                                               fhicl_doc_range range,
-                                               bool trim = false) {
+inline std::vector<fhicl_doc_range> get_list_elements(fhicl_doc const &doc,
+                                                      fhicl_doc_range range,
+                                                      bool trim = false) {
 
   range.begin = doc.validate_line_point(range.begin);
 #ifdef DEBUG_GET_LIST_ELEMENTS
@@ -1250,7 +1256,8 @@ std::vector<fhicl_doc_range> get_list_elements(fhicl_doc const &doc,
 
 // #define DEBUG_OPEN_FHICL_FILE
 
-std::unique_ptr<std::ifstream> open_fhicl_file(std::string const &filename) {
+inline std::unique_ptr<std::ifstream>
+open_fhicl_file(std::string const &filename) {
 
 #ifdef DEBUG_OPEN_FHICL_FILE
   std::cout << "[open_fhicl_file]: Trying to resolve " << std::quoted(filename)
@@ -1314,7 +1321,7 @@ std::unique_ptr<std::ifstream> open_fhicl_file(std::string const &filename) {
   return nullptr;
 }
 
-fhicl_doc read_doc(std::string const &filename) {
+inline fhicl_doc read_doc(std::string const &filename) {
   std::unique_ptr<std::ifstream> ifs = open_fhicl_file(filename);
   if (!ifs || !ifs->good()) {
     throw file_does_not_exist()

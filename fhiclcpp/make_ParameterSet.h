@@ -6,7 +6,7 @@
 
 namespace fhicl {
 
-ParameterSet make_ParameterSet(std::string const &filename) {
+inline ParameterSet make_ParameterSet(std::string const &filename) {
   ParameterSet prolog;
   ParameterSet working_doc;
 

@@ -9,7 +9,7 @@
 
 namespace fhicl {
 
-ParameterSet parse_fhicl_document(fhicl_doc const &, ParameterSet const &,
+inline ParameterSet parse_fhicl_document(fhicl_doc const &, ParameterSet const &,
                                   ParameterSet const &, fhicl_doc_range,
                                   key_t const &);
 
@@ -20,7 +20,7 @@ std::string indent = "";
 #endif
 
 template <typename T>
-std::shared_ptr<T>
+inline std::shared_ptr<T>
 deep_copy_resolved_reference_value(key_t const &key,
                                    ParameterSet const &working_set,
                                    ParameterSet const &PROLOG) {
@@ -71,7 +71,7 @@ deep_copy_resolved_reference_value(key_t const &key,
   return nullptr;
 }
 
-std::shared_ptr<Base>
+inline std::shared_ptr<Base>
 parse_object(fhicl_doc const &doc, fhicl_doc_range doc_range,
              fhicl_doc_line_point &next_character,
              ParameterSet const &working_set, ParameterSet const &PROLOG,

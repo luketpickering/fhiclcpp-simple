@@ -51,7 +51,6 @@ documentation and/or software.
 //      MD5(std::string).hexdigest()
 //
 // assumes that char is 8 bit and int is 32 bit
-namespace fhiclcpp {
 
 class MD5 {
   typedef uint8_t uint1;  //  8bit
@@ -78,21 +77,21 @@ class MD5 {
 public:
   typedef unsigned int size_type; // must be 32bit
 
-  MD5();
-  MD5(const std::string &text);
-  void update(const unsigned char *buf, size_type length);
-  void update(const char *buf, size_type length);
-  MD5 &finalize();
-  std::string hexdigest() const;
+  inline MD5();
+  inline MD5(const std::string &text);
+  void inline update(const unsigned char *buf, size_type length);
+  void inline update(const char *buf, size_type length);
+  inline MD5 &finalize();
+  inline std::string hexdigest() const;
   friend std::ostream &operator<<(std::ostream &, MD5 md5);
 
 private:
-  void init();
+  inline void init();
   enum { blocksize = 64 }; // VC6 won't eat a const static int here
 
-  void transform(const uint1 block[blocksize]);
-  static void decode(uint4 output[], const uint1 input[], size_type len);
-  static void encode(uint1 output[], const uint4 input[], size_type len);
+  inline void transform(const uint1 block[blocksize]);
+  inline static void decode(uint4 output[], const uint1 input[], size_type len);
+  inline static void encode(uint1 output[], const uint4 input[], size_type len);
 
   bool finalized;
   uint1 buffer[blocksize]; // bytes that didn't fit in last 64 byte chunk
@@ -116,7 +115,7 @@ private:
                         uint4 ac);
 };
 
-std::string md5(const std::string str);
+inline std::string md5(const std::string str);
 
 ///////////////////////////////////////////////
 
@@ -402,12 +401,10 @@ std::ostream inline &operator<<(std::ostream &out, MD5 md5) {
 
 //////////////////////////////
 
-std::string inline md5(const std::string str) {
+std::string md5(const std::string str) {
   MD5 md5 = MD5(str);
 
   return md5.hexdigest();
 }
-
-} // namespace fhiclcpp
 
 #endif

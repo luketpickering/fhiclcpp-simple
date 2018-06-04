@@ -75,8 +75,10 @@ void print_bracket_finder(std::string const &str, size_t begin = 0,
 }
 #endif
 
-size_t find_matching_bracket(std::string const &str, char open_bracket = '{',
-                             char close_bracket = '}', size_t begin = 0) {
+inline size_t find_matching_bracket(std::string const &str,
+                                    char open_bracket = '{',
+                                    char close_bracket = '}',
+                                    size_t begin = 0) {
 
 #ifdef FHICLCPP_SIMPLE_STRING_PARSERS_UTILITY_DEBUG
   if (!matching_brackets.count(open_bracket)) {
@@ -125,7 +127,7 @@ size_t find_matching_bracket(std::string const &str, char open_bracket = '{',
   return next_match;
 }
 
-std::string ensure_trailing_slash(std::string const &str) {
+inline std::string ensure_trailing_slash(std::string const &str) {
   if (!str.size()) {
     return str;
   }

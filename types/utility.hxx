@@ -12,7 +12,7 @@
 
 namespace fhicl {
 
-fhicl_category get_fhicl_category(std::shared_ptr<Base> const el) {
+fhicl_category inline get_fhicl_category(std::shared_ptr<Base> const el) {
   if (!el) {
     return fhicl_category::kInvalidInstance;
   }
@@ -38,7 +38,7 @@ fhicl_category get_fhicl_category(std::shared_ptr<Base> const el) {
          "any known type.";
 }
 
-std::string get_fhicl_category_string(std::shared_ptr<Base> const el) {
+std::string inline get_fhicl_category_string(std::shared_ptr<Base> const el) {
   fhicl_category fc = get_fhicl_category(el);
   switch (fc) {
   case fhicl_category::kInvalidInstance: {
@@ -63,20 +63,7 @@ std::string get_fhicl_category_string(std::shared_ptr<Base> const el) {
   }
 }
 
-// template <typename T>
-// std::shared_ptr<T> deep_copy_value(std::shared_ptr<Base> const original) {
-//   if (!original) {
-//     return nullptr;
-//   }
-//   std::shared_ptr<T> t = std::dynamic_pointer_cast<T>(original);
-//   if (t) {
-//     return std::make_shared<T>(*t);
-//   }
-//   throw bizare_error() << "[ERROR]: When attempting to deep copy a fhicl "
-//                             "value to a known type,  the type cast failed.";
-// }
-
-std::shared_ptr<Base>
+inline std::shared_ptr<Base>
 deep_copy_value(std::shared_ptr<Base> const original) {
   if (!original) {
     return nullptr;

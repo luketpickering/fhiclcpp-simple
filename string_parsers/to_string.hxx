@@ -12,31 +12,31 @@ namespace fhicl {
 namespace string_parsers {
 
 template <typename T>
-std::string
+inline std::string
 T2Str(typename std::enable_if<!is_seq<T>::value, T>::type const &o) {
   std::stringstream ss("");
   ss << o;
   return ss.str();
 }
 
-template <> std::string T2Str<bool>(bool const &o) {
+template <> inline std::string T2Str<bool>(bool const &o) {
   return o ? "true" : "false";
 }
-template <> std::string T2Str<std::string>(std::string const &o) {
+template <> inline std::string T2Str<std::string>(std::string const &o) {
   std::stringstream ss("");
   ss << std::quoted(o);
   return ss.str();
 }
 
 template <typename T>
-std::string
+inline std::string
 T2Str(typename std::enable_if<is_pair<T>::value, T>::type const &pair);
 template <typename T>
-std::string
+inline std::string
 T2Str(typename std::enable_if<is_tuple<T>::value, T>::type const &t);
 
 template <typename T>
-std::string
+inline std::string
 T2Str(typename std::enable_if<is_vect<T>::value || is_array<T>::value,
                               T>::type const &arr_like) {
   std::stringstream ss("");
@@ -51,7 +51,7 @@ T2Str(typename std::enable_if<is_vect<T>::value || is_array<T>::value,
 }
 
 template <typename T>
-std::string
+inline std::string
 T2Str(typename std::enable_if<is_pair<T>::value, T>::type const &pair) {
   std::stringstream ss("");
   ss << "[" << T2Str<typename T::first_type>(pair.first) << ","
@@ -81,7 +81,7 @@ template <std::size_t I = 0, typename... Tp>
 }
 
 template <typename T>
-std::string
+inline std::string
 T2Str(typename std::enable_if<is_tuple<T>::value, T>::type const &t) {
   std::stringstream ss("");
   write_tuple(ss, t);
