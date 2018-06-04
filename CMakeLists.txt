@@ -12,6 +12,9 @@ if(NOT DEFINED DOTEST)
   SET(DOTEST FALSE)
 endif()
 
+if(NOT DEFINED NO_SETUP)
+  SET(NO_SETUP FALSE)
+endif()
 
 if(DOTEST)
   enable_testing()
@@ -57,11 +60,13 @@ add_subdirectory(string_parsers)
 add_subdirectory(types)
 add_subdirectory(fhiclcpp)
 
-configure_file(cmake/setup.sh.in
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" @ONLY)
-install(FILES
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" DESTINATION
-  ${CMAKE_INSTALL_PREFIX})
+if(NOT NO_SETUP)
+  configure_file(cmake/setup.sh.in
+    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" @ONLY)
+  install(FILES
+    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" DESTINATION
+    ${CMAKE_INSTALL_PREFIX})
+endif()
 
 if(DOTEST)
   file(GLOB EXAMPLE_FCL fcl/*.fcl)
