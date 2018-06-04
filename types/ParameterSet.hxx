@@ -151,13 +151,13 @@ class ParameterSet : public Base {
     return {key.substr(0, first_open_bracket), index};
   }
 
-  std::shared_ptr<Base> &get_value(key_t const &key, bool allow_extend = false,
+  inline std::shared_ptr<Base> &get_value(key_t const &key, bool allow_extend = false,
                                    bool allow_override = false);
-  std::shared_ptr<Base> const &get_value(key_t const &key) const;
-  std::shared_ptr<Base> &get_value_recursive(key_t const &key,
+  inline std::shared_ptr<Base> const &get_value(key_t const &key) const;
+  inline std::shared_ptr<Base> &get_value_recursive(key_t const &key,
                                              bool allow_extend = false,
                                              bool allow_override = false);
-  std::shared_ptr<Base> const &get_value_recursive(key_t const &key) const;
+  inline std::shared_ptr<Base> const &get_value_recursive(key_t const &key) const;
 
   bool check_key(key_t const &key, bool throw_on_not_exist = false) const {
     if (!key.size()) {
@@ -379,7 +379,7 @@ public:
         std::dynamic_pointer_cast<Atom const>(get_value_recursive(key));
     return bool(atm);
   }
-  bool is_key_to_sequence(key_t const &key) const;
+  inline bool is_key_to_sequence(key_t const &key) const;
   bool is_key_to_table(key_t const &key) const {
     if (!check_key(key)) {
       return false;

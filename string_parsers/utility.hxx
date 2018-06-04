@@ -54,9 +54,6 @@ inline bool is_sequence(std::string const &str) {
   return well_bracket_wrapped(str, '[', ']');
 }
 
-std::map<char, char> matching_brackets = {
-    {'(', ')'}, {'{', '}'}, {'[', ']'}, {'<', '>'}, {'\'', '\''}, {'\"', '\"'}};
-
 // #define FHICLCPP_SIMPLE_STRING_PARSERS_UTILITY_DEBUG
 #ifdef FHICLCPP_SIMPLE_STRING_PARSERS_UTILITY_DEBUG
 std::string indent = "";
@@ -81,6 +78,10 @@ inline size_t find_matching_bracket(std::string const &str,
                                     size_t begin = 0) {
 
 #ifdef FHICLCPP_SIMPLE_STRING_PARSERS_UTILITY_DEBUG
+  std::map<char, char> matching_brackets = {{'(', ')'},   {'{', '}'},
+                                            {'[', ']'},   {'<', '>'},
+                                            {'\'', '\''}, {'\"', '\"'}};
+
   if (!matching_brackets.count(open_bracket)) {
     throw;
   } else if (matching_brackets[open_bracket] != close_bracket) {
