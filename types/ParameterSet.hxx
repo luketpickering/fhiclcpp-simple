@@ -81,18 +81,18 @@ class ParameterSet : public Base {
   put_into_internal_rep(key_t const &key, T const &value);
   template <typename T>
   inline typename std::enable_if<(!std::is_same<Base, T>::value) &&
-                              std::is_base_of<Base, T>::value,
-                          void>::type
+                                     std::is_base_of<Base, T>::value,
+                                 void>::type
   put_into_internal_rep(key_t const &key, T const &value);
   template <typename T>
   inline typename std::enable_if<(!std::is_base_of<Base, T>::value) &&
-                              (!std::is_base_of<Base, T>::value),
-                          void>::type
+                                     (!std::is_base_of<Base, T>::value),
+                                 void>::type
   put_into_internal_rep(key_t const &key, T const &value);
 
   template <typename T>
   inline void put_with_custom_history(key_t const &key, T const &value,
-                               std::string const &hist_entry);
+                                      std::string const &hist_entry);
 
   template <typename T>
   inline typename std::enable_if<std::is_base_of<Base, T>::value, void>::type
@@ -151,13 +151,15 @@ class ParameterSet : public Base {
     return {key.substr(0, first_open_bracket), index};
   }
 
-  inline std::shared_ptr<Base> &get_value(key_t const &key, bool allow_extend = false,
-                                   bool allow_override = false);
+  inline std::shared_ptr<Base> &get_value(key_t const &key,
+                                          bool allow_extend = false,
+                                          bool allow_override = false);
   inline std::shared_ptr<Base> const &get_value(key_t const &key) const;
-  inline std::shared_ptr<Base> &get_value_recursive(key_t const &key,
-                                             bool allow_extend = false,
-                                             bool allow_override = false);
-  inline std::shared_ptr<Base> const &get_value_recursive(key_t const &key) const;
+  inline std::shared_ptr<Base> &
+  get_value_recursive(key_t const &key, bool allow_extend = false,
+                      bool allow_override = false);
+  inline std::shared_ptr<Base> const &
+  get_value_recursive(key_t const &key) const;
 
   bool check_key(key_t const &key, bool throw_on_not_exist = false) const {
     if (!key.size()) {
@@ -440,7 +442,7 @@ public:
     return string_parsers::str2T<T>(get_value_recursive(key)->to_string());
   };
 
-  template <typename T> T get(key_t const &key, T def) {
+  template <typename T> T get(key_t const &key, T def) const {
     try {
       return get<T>(key);
     } catch (fhicl::string_parsers::fhicl_cpp_simple_except &e) { // parser fail
@@ -454,12 +456,12 @@ public:
     }
   };
 
-  template <typename T> bool get_if_present(key_t const &key, T &rtn) {
+  template <typename T> bool get_if_present(key_t const &key, T &rtn) const {
     if (!check_key(key)) {
       return false;
     }
     try {
-      rtn = string_parsers::str2T<T>(internal_rep.at(key)->to_string());
+      rtn = get<T>(key);
     } catch (fhicl::string_parsers::fhicl_cpp_simple_except &e) { // parser fail
       return false;
     } catch (fhicl::fhicl_cpp_simple_except &e) { // type fail
