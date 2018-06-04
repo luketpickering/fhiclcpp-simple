@@ -51,6 +51,8 @@ documentation and/or software.
 //      MD5(std::string).hexdigest()
 //
 // assumes that char is 8 bit and int is 32 bit
+namespace fhiclcpp {
+
 class MD5 {
   typedef uint8_t uint1;  //  8bit
   typedef uint32_t uint4; // 32bit
@@ -394,16 +396,18 @@ std::string MD5::hexdigest() const {
 
 //////////////////////////////
 
-std::ostream &operator<<(std::ostream &out, MD5 md5) {
+std::ostream inline &operator<<(std::ostream &out, MD5 md5) {
   return out << md5.hexdigest();
 }
 
 //////////////////////////////
 
-std::string md5(const std::string str) {
+std::string inline md5(const std::string str) {
   MD5 md5 = MD5(str);
 
   return md5.hexdigest();
 }
+
+} // namespace fhiclcpp
 
 #endif

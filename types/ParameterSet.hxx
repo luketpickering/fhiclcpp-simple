@@ -221,7 +221,7 @@ public:
     }
     // if we can't use the cache, we also cannot update it as this is a const
     // method.
-    std::string md = md5(to_string());
+    std::string md = fhiclcpp::md5(to_string());
     ParameterSetID ID = 1;
     while (md.size()) {
       ID *= string_parsers::str2T<ParameterSetID>(std::string("0x") +
