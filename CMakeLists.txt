@@ -12,8 +12,8 @@ if(NOT DEFINED DOTEST)
   SET(DOTEST FALSE)
 endif()
 
-if(NOT DEFINED NO_SETUP)
-  SET(NO_SETUP FALSE)
+if(NOT DEFINED SETUPFILENAME)
+  SET(SETUPFILENAME "setup.sh")
 endif()
 
 if(DOTEST)
@@ -60,13 +60,11 @@ add_subdirectory(string_parsers)
 add_subdirectory(types)
 add_subdirectory(fhiclcpp)
 
-if(NOT NO_SETUP)
-  configure_file(cmake/setup.sh.in
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" @ONLY)
-  install(FILES
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" DESTINATION
-    ${CMAKE_INSTALL_PREFIX})
-endif()
+configure_file(cmake/setup.sh.in
+"${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${SETUPFILENAME}" @ONLY)
+install(FILES
+  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${SETUPFILENAME}" DESTINATION
+  ${CMAKE_INSTALL_PREFIX})
 
 if(DOTEST)
   file(GLOB EXAMPLE_FCL fcl/*.fcl)
