@@ -5,21 +5,25 @@
 #include "types/Base.hxx"
 #include "types/ParameterSet.hxx"
 #include "types/Sequence.hxx"
+#include "types/exception.hxx"
 #include "types/traits.hxx"
+#include "types/utility.hxx"
 
 #include "string_parsers/exception.hxx"
 
 #include <limits>
 #include <memory>
 
-void fhicl::Sequence::from(std::string const &str) {
+namespace fhicl {
+
+void Sequence::from(std::string const &str) {
   if (!str.size()) {
     return;
   }
   std::string tstr = str;
-  fhicl::string_parsers::trim(tstr);
-  if (!fhicl::string_parsers::well_bracket_wrapped(tstr, '[', ']')) {
-    throw fhicl::string_parsers::parser_fail()
+  string_parsers::trim(tstr);
+  if (!string_parsers::well_bracket_wrapped(tstr, '[', ']')) {
+    throw string_parsers::parser_fail()
         << "[ERROR]: Attempted to parse a non-array-like string ("
         << std::quoted(str) << ") as a Sequence.";
 
@@ -27,10 +31,10 @@ void fhicl::Sequence::from(std::string const &str) {
     tstr = tstr.substr(1, tstr.size() - 2);
   }
   for (std::string const &outer_list_item :
-       fhicl::string_parsers::ParseToVect<std::string>(tstr, ",", true, true)) {
-    if (fhicl::string_parsers::is_table(outer_list_item)) {
+       string_parsers::ParseToVect<std::string>(tstr, ",", true, true)) {
+    if (string_parsers::is_table(outer_list_item)) {
       internal_rep.push_back(std::make_shared<ParameterSet>(outer_list_item));
-    } else if (fhicl::string_parsers::is_sequence(outer_list_item)) {
+    } else if (string_parsers::is_sequence(outer_list_item)) {
       internal_rep.push_back(std::make_shared<Sequence>(outer_list_item));
     } else {
       internal_rep.push_back(std::make_shared<Atom>(outer_list_item));
@@ -38,14 +42,14 @@ void fhicl::Sequence::from(std::string const &str) {
   }
 }
 
-void fhicl::ParameterSet::from(std::string const &str) {
+void ParameterSet::from(std::string const &str) {
   if (!str.size()) {
     return;
   }
   std::string tstr = str;
-  fhicl::string_parsers::trim(tstr);
-  if (!fhicl::string_parsers::well_bracket_wrapped(tstr, '{', '}')) {
-    throw fhicl::string_parsers::parser_fail()
+  string_parsers::trim(tstr);
+  if (!string_parsers::well_bracket_wrapped(tstr, '{', '}')) {
+    throw string_parsers::parser_fail()
         << "[ERROR]: Attempted to parse a non-map-like string ("
         << std::quoted(str) << ") as a ParameterSet.";
 
@@ -54,11 +58,10 @@ void fhicl::ParameterSet::from(std::string const &str) {
   }
   static const std::map<char, char> extra_brackets{
       {'[', ']'}, {'{', '}'}, {'(', ')'}};
-  std::vector<std::string> k_v_list =
-      fhicl::string_parsers::ParseToVect<std::string>(tstr, " ", false, true,
-                                                      extra_brackets);
+  std::vector<std::string> k_v_list = string_parsers::ParseToVect<std::string>(
+      tstr, " ", false, true, extra_brackets);
   if (k_v_list.size() % 2) {
-    throw fhicl::string_parsers::parser_fail()
+    throw string_parsers::parser_fail()
         << "[ERROR]: Attempted to parse a map-like string but expected an even "
            "number of values to be parsed as key: value pairs: "
         << std::quoted(tstr);
@@ -67,7 +70,7 @@ void fhicl::ParameterSet::from(std::string const &str) {
   for (size_t i = 0; i < k_v_list.size(); i += 2) {
 
     if (k_v_list[i].back() != ':') {
-      throw fhicl::string_parsers::parser_fail()
+      throw string_parsers::parser_fail()
           << "[ERROR]: Attempted to parse a non-key-value-pair-like string ("
           << std::quoted(k_v_list[i] + " " + k_v_list[i + 1])
           << ") as a \"key: value\" pair.";
@@ -75,9 +78,9 @@ void fhicl::ParameterSet::from(std::string const &str) {
     std::string const &k = k_v_list[i].substr(0, k_v_list[i].size() - 1);
     std::string const &v = k_v_list[i + 1];
 
-    if (fhicl::string_parsers::is_table(v)) {
+    if (string_parsers::is_table(v)) {
       internal_rep.insert({k, std::make_shared<ParameterSet>(v)});
-    } else if (fhicl::string_parsers::is_sequence(v)) {
+    } else if (string_parsers::is_sequence(v)) {
       internal_rep.insert({k, std::make_shared<Sequence>(v)});
     } else {
       internal_rep.insert({k, std::make_shared<Atom>(v)});
@@ -85,533 +88,344 @@ void fhicl::ParameterSet::from(std::string const &str) {
   }
 }
 
-bool fhicl::ParameterSet::is_key_to_sequence(key_t const &key) const {
+bool ParameterSet::is_key_to_sequence(key_t const &key) const {
   if (!check_key(key)) {
     return false;
   }
-  std::shared_ptr<fhicl::Sequence const> seq =
-      std::dynamic_pointer_cast<fhicl::Sequence const>(
-          get_value_recursive(key));
+  std::shared_ptr<Sequence const> seq =
+      std::dynamic_pointer_cast<Sequence const>(get_value_recursive(key));
   return bool(seq);
 }
 
-std::string fhicl::ParameterSet::get_fhicl_category(
-    std::shared_ptr<fhicl::Base const> el) const {
-  if (!el) {
-    return "nullptr";
-  }
-  std::shared_ptr<Atom const> atm = std::dynamic_pointer_cast<Atom const>(el);
-  if (atm) {
-    if (atm->is_nil()) {
-      return "@nil";
-    }
-    return "atom";
-  }
-  std::shared_ptr<Sequence const> seq =
-      std::dynamic_pointer_cast<Sequence const>(el);
-  if (seq) {
-    std::stringstream ss("");
-    ss << "seq[" << seq->size() << "]";
-    return ss.str();
-  }
-  std::shared_ptr<ParameterSet const> ps =
-      std::dynamic_pointer_cast<ParameterSet const>(el);
-  if (ps) {
-    return "table";
-  }
-  throw bizare_error()
-      << "[ERROR]: When attempting to get fhicl category, failed to cast as "
-         "any known type. This is an internal error, please send a full "
-         "backtrace to the maintainer.";
-}
-
 template <typename T>
-typename std::enable_if<std::is_same<T, fhicl::ParameterSet>::value, void>::type
-fhicl::ParameterSet::put_into_internal_rep(key_t const &key, T const &value) {
+typename std::enable_if<std::is_same<Base, T>::value, void>::type
+ParameterSet::put_into_internal_rep(key_t const &key, T const &value) {
+  try {
+    ParameterSet const &ps = dynamic_cast<ParameterSet const &>(value);
+    get_value_recursive(key, true, true) = std::make_shared<ParameterSet>(ps);
+    idCache = 0;
+    return;
+  } catch (const std::bad_cast) {
+  }
+  try {
+    Sequence const &seq = dynamic_cast<Sequence const &>(value);
+    get_value_recursive(key, true, true) = std::make_shared<Sequence>(seq);
+    idCache = 0;
+    return;
+  } catch (const std::bad_cast) {
+  }
+  try {
+    Atom const &atm = dynamic_cast<Atom const &>(value);
+    get_value_recursive(key, true, true) = std::make_shared<Atom>(atm);
+    idCache = 0;
+    return;
+  } catch (const std::bad_cast) {
+  }
+  throw bizare_error() << "Failed to downcast internal representation to a "
+                          "fhicl type for interal representation = "
+                       << value.to_string();
+}
+template <typename T>
+typename std::enable_if<(!std::is_same<Base, T>::value) &&
+                            std::is_base_of<Base, T>::value,
+                        void>::type
+ParameterSet::put_into_internal_rep(key_t const &key, T const &value) {
   get_value_recursive(key, true, true) =
-      std::make_shared<typename fhicl::fhicl_type<T>::type>(value);
+      std::make_shared<typename fhicl_type<T>::type>(value);
   idCache = 0;
 }
 template <typename T>
-typename std::enable_if<!std::is_same<T, fhicl::ParameterSet>::value,
+typename std::enable_if<(!std::is_base_of<Base, T>::value) &&
+                            (!std::is_base_of<Base, T>::value),
                         void>::type
-fhicl::ParameterSet::put_into_internal_rep(key_t const &key, T const &value) {
+ParameterSet::put_into_internal_rep(key_t const &key, T const &value) {
   get_value_recursive(key, true, true) =
-      std::make_shared<typename fhicl::fhicl_type<T>::type>(
+      std::make_shared<typename fhicl_type<T>::type>(
           string_parsers::T2Str<T>(value));
   idCache = 0;
 }
 
 template <typename T>
-void fhicl::ParameterSet::put_with_custom_history(key_t const &key,
-                                                  T const &value,
-                                                  std::string hist_entry) {
+void ParameterSet::put_with_custom_history(key_t const &key, T const &value,
+                                           std::string const &hist_entry) {
   std::stringstream ss("");
   if (has_key(key)) {
-    ss << "Added a " << std::quoted(fhicl::fhicl_type<T>::type_string())
+    ss << "Added a " << std::quoted(fhicl_type<T>::category_string())
        << " from " << std::quoted(hist_entry);
   } else {
-    ss << "Overriden with a "
-       << std::quoted(fhicl::fhicl_type<T>::type_string()) << " from "
-       << std::quoted(hist_entry);
+    ss << "Overriden with a " << std::quoted(fhicl_type<T>::category_string())
+       << " from " << std::quoted(hist_entry);
   }
 
   put_into_internal_rep(key, value);
   history[key].push_back(ss.str());
 }
 
-// #define DEBUG_GET_VALUE_RECURSIVE
+template <typename T>
+typename std::enable_if<std::is_base_of<Base, T>::value, void>::type
+ParameterSet::put_with_custom_history(key_t const &key,
+                                      std::shared_ptr<T> &&value_ptr,
+                                      std::string const &hist_entry) {
+  std::stringstream ss("");
+  if (has_key(key)) {
+    ss << "Added a " << std::quoted(fhicl_type<T>::category_string())
+       << " from " << std::quoted(hist_entry);
+  } else {
+    ss << "Overriden with a " << std::quoted(fhicl_type<T>::category_string())
+       << " from " << std::quoted(hist_entry);
+  }
 
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-static std::string indent = "";
+  get_value_recursive(key, true, true) = std::move(value_ptr);
+  idCache = 0;
+  history[key].push_back(ss.str());
+}
+
+// #define DEBUG_GET_VALUE
+
+#ifdef DEBUG_GET_VALUE
+std::string indent = "";
 #endif
 
-std::shared_ptr<fhicl::Base> &fhicl::ParameterSet::get_value_recursive(
-    fhicl::key_t const &key, bool allow_extend, bool allow_override) {
-  static std::shared_ptr<Base> nullrtn(nullptr);
-  nullrtn = nullptr;
+std::shared_ptr<Base> &ParameterSet::get_value(key_t const &key,
+                                               bool allow_extend,
+                                               bool allow_override) {
 
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-  std::cout << indent << "Looking for key: " << key << std::endl;
+#ifdef DEBUG_GET_VALUE
+  std::cout << indent << "[GV]: Getting value of key: " << std::quoted(key)
+            << std::endl;
 #endif
 
   size_t first_period = key.find_first_of(".");
-  if (first_period == std::string::npos) { // No more recusion
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-    std::cout << indent << "No periods, looking in this Parameter set."
-              << std::endl;
-#endif
-    auto ki_pair = get_key_index(key);
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-    std::cout << indent << "Split key to " << ki_pair.key << ", "
-              << ki_pair.index << std::endl;
-#endif
-    auto kvp_it = internal_rep.find(ki_pair.key);
-    if (kvp_it == internal_rep.end()) {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-      std::cout << indent << "No such key found." << std::endl;
-#endif
-      if (allow_extend) {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "Attempting to extend..." << std::endl;
-#endif
-        // attempt a sequence dereference
-        if (ki_pair.has_index()) {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Key has an index, making new sequence"
-                    << std::endl;
-#endif
-          std::shared_ptr<fhicl::Sequence> seq =
-              std::make_shared<fhicl::Sequence>();
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Adding new sequence to internal_rep"
-                    << std::endl;
-#endif
-          internal_rep[ki_pair.key] = seq;
-          added_key_for_extension(ki_pair.key, key);
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Extending child sequence." << std::endl;
-#endif
+  if (first_period != std::string::npos) { // No recusion allowed
+    throw bizare_error() << "[ERROR]: ParameterSet::get_value passed key "
+                         << std::quoted(key)
+                         << " but is not able to resolve FQKeys.";
+  }
 
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Before returning: " << to_string()
-                    << std::endl;
+  auto ki_pair = get_key_index(key);
+  auto kvp_it = internal_rep.find(ki_pair.key);
+  if (kvp_it == internal_rep.end()) {
+    if (allow_extend) {
+      if (ki_pair.has_index()) { // if key is sequence-like
+        std::shared_ptr<Sequence> seq = std::make_shared<Sequence>();
+        internal_rep[ki_pair.key] = seq;
+#ifdef DEBUG_GET_VALUE
+        std::string oi = indent;
+        indent = "+";
 #endif
-          return seq->get_or_extend_get_value(ki_pair.index);
-        } else {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent
-                    << "Key has no index, adding new Atom to internal_rep"
-                    << std::endl;
-#endif
-          internal_rep[ki_pair.key] = std::make_shared<Atom>();
-          added_key_for_extension(ki_pair.key, key);
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Before returning: " << to_string()
-                    << std::endl;
-#endif
-          return internal_rep[ki_pair.key];
-        }
-      } else {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "Not allowed to extend, return nullptr."
-                  << std::endl;
-#endif
-        return nullrtn;
-      }
-    } else {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-      std::cout << indent << "Found the key" << std::endl;
-#endif
-      // attempt a sequence dereference
-      if (ki_pair.has_index()) {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "Key has an index" << std::endl;
-#endif
-        if (!is_key_to_sequence(ki_pair.key)) {
-          throw wrong_fhicl_category()
-              << "[ERROR]: Attempted to access index of a sequence with key: "
-              << std::quoted(key) << ", however the value is of fhicl type "
-              << std::quoted(get_fhicl_category(key));
-        }
-        std::shared_ptr<fhicl::Sequence> seq =
-            std::dynamic_pointer_cast<fhicl::Sequence>(
-                internal_rep.at(ki_pair.key));
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent
-                  << "Get or extending sequence (Get: " << ki_pair.index
-                  << ", Length: " << seq->size() << ")" << std::endl;
-#endif
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "Before returning: " << to_string() << std::endl;
+        added_key_for_extension(ki_pair.key, key);
+#ifdef DEBUG_GET_VALUE
+        indent = oi;
 #endif
         return seq->get_or_extend_get_value(ki_pair.index);
       } else {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "No index, returning entire object of type: "
-                  << get_fhicl_category(kvp_it->first) << std::endl;
+        internal_rep[ki_pair.key] = std::make_shared<Atom>();
+#ifdef DEBUG_GET_VALUE
+        std::string oi = indent;
+        indent = "+";
 #endif
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "Before returning: " << to_string() << std::endl;
+        added_key_for_extension(ki_pair.key, key);
+#ifdef DEBUG_GET_VALUE
+        indent = oi;
 #endif
-        return kvp_it->second;
+        return internal_rep[ki_pair.key];
       }
+    } else {
+      return Base::empty();
     }
-  } else { // we must go deepr
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-    std::cout << indent
-              << "Final element doesn't exist within this parameter set"
-              << std::endl;
+  } else {                     // key already exists
+    if (ki_pair.has_index()) { // if key is sequence-like
+#ifdef DEBUG_GET_VALUE
+      std::string oi = indent;
+      indent = "+";
 #endif
-    std::string local_key = key.substr(0, first_period);
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-    std::cout << indent << "Local portion of the key: " << local_key
-              << std::endl;
-#endif
-    auto ki_pair = get_key_index(local_key);
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-    std::cout << indent << "Split key to " << ki_pair.key << ", "
-              << ki_pair.index << std::endl;
-#endif
-
-    auto kvp_it = internal_rep.find(ki_pair.key);
-    if (kvp_it == internal_rep.end()) { // request key doesn't exist
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-      std::cout << indent << "No such key found." << std::endl;
-#endif
-      if (allow_extend) { // we must make it
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "Attempting to extend..." << std::endl;
-#endif
-        if (ki_pair.index !=
-            std::numeric_limits<size_t>::max()) { // expecting a sequence
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Key has an index, making new sequence"
-                    << std::endl;
-#endif
-          // make a new sequence
-          std::shared_ptr<Sequence> seq = std::make_shared<Sequence>();
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Adding new sequence to internal_rep"
-                    << std::endl;
-#endif
-          // put it in this parameter set
-          internal_rep[ki_pair.key] = seq;
-          added_key_for_extension(ki_pair.key, key);
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Making new ParameterSet" << std::endl;
-#endif
-          // make a new parameter set
-          std::shared_ptr<ParameterSet> ps = std::make_shared<ParameterSet>();
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Adding ParameterSet to new child sequence"
-                    << std::endl;
-#endif
-          // put it at the desired reference
-          seq->get_or_extend_get_value(ki_pair.index) = ps;
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Before recursion: " << to_string()
-                    << std::endl;
-
-          std::cout << indent << "Recursing with sub-key: "
-                    << key.substr(first_period + 1) << std::endl;
-          indent = indent + "  ";
-          // recurse into it
-          std::shared_ptr<Base> &rtn = ps->get_value_recursive(
-              key.substr(first_period + 1), allow_extend, allow_override);
-          indent = indent.substr(2);
-          return rtn;
-#else
-          // recurse into it
-          return ps->get_value_recursive(key.substr(first_period + 1),
-                                         allow_extend, allow_override);
-#endif
-        } else { // not expecting a sequence, just make an empty parameter set
-// and recurse into it
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "No index, making new ParameterSet"
-                    << std::endl;
-#endif
-          std::shared_ptr<ParameterSet> ps = std::make_shared<ParameterSet>();
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Adding new ParameterSet to internal_rep"
-                    << std::endl;
-#endif
-          internal_rep[ki_pair.key] = ps;
-          added_key_for_extension(ki_pair.key, key);
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Before recursion: " << to_string()
-                    << std::endl;
-          std::cout << indent << "Recursing with sub-key: "
-                    << key.substr(first_period + 1) << std::endl;
-          indent = indent + "  ";
-          // recurse into it
-          std::shared_ptr<Base> &rtn = ps->get_value_recursive(
-              key.substr(first_period + 1), allow_extend, allow_override);
-          indent = indent.substr(2);
-          return rtn;
-#else
-          // recurse into it
-          return ps->get_value_recursive(key.substr(first_period + 1),
-                                         allow_extend, allow_override);
-#endif
-        }
-      } else { // too bad
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "Not allowed to extend, return nullptr."
-                  << std::endl;
-#endif
-        return nullrtn;
-      }
-    } else { // key exists
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-      std::cout << indent << "Key exists." << std::endl;
-#endif
-      std::shared_ptr<Base> *child;
-      // attempt a sequence dereference
-      if (ki_pair.has_index()) {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "Found an index" << std::endl;
-#endif
-        if (!is_key_to_sequence(ki_pair.key)) {
+      if (!is_key_to_sequence(
+              ki_pair.key)) {  // is the existing value sequence-like?
+        if (!allow_override) { // if not, and we can't do anything about it,
+                               // throw
           throw wrong_fhicl_category()
               << "[ERROR]: Attempted to access index of a sequence with key: "
               << std::quoted(key) << ", however the value is of fhicl type "
-              << std::quoted(get_fhicl_category(key));
+              << std::quoted(get_fhicl_category_string(key));
         }
-        std::shared_ptr<fhicl::Sequence> seq =
-            std::dynamic_pointer_cast<fhicl::Sequence>(
-                internal_rep.at(ki_pair.key));
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent
-                  << "Get or extending sequence (Get: " << ki_pair.index
-                  << ", Length: " << seq->size() << ")" << std::endl;
-#endif
-        child = &seq->get_or_extend_get_value(ki_pair.index);
-      } else {
-        child = &kvp_it->second;
+        // if we can, flatten whatever used to live there with an empty sequence
+        internal_rep.at(ki_pair.key) = std::make_shared<Sequence>();
+        overrode_key(ki_pair.key, ki_pair.index);
       }
-
-      std::shared_ptr<fhicl::ParameterSet> child_table =
-          std::dynamic_pointer_cast<fhicl::ParameterSet>(*child);
-
-      if (!child_table) {
-        if (!allow_override) {
-          throw wrong_fhicl_category()
-              << "[ERROR]: Attempting to recurse into a "
-                 "child parameter set named: "
-              << std::quoted(local_key)
-              << " from full key: " << std::quoted(key)
-              << ", however the value is of fhicl type "
-              << std::quoted(get_fhicl_category(key));
-        } else {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Retreived element is not a ParameterSet ("
-                    << get_fhicl_category(child_table) << "), overriding"
-                    << std::endl;
+#ifdef DEBUG_GET_VALUE
+      indent = oi;
 #endif
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "No index, making new ParameterSet"
-                    << std::endl;
-#endif
-          std::shared_ptr<ParameterSet> ps = std::make_shared<ParameterSet>();
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "Adding new ParameterSet to internal_rep"
-                    << std::endl;
-#endif
-          //
-          (*child) = ps;
-          overrode_key(ki_pair.key, ki_pair.index);
-        }
-      }
-      child_table = std::dynamic_pointer_cast<fhicl::ParameterSet>(*child);
-      if (!child_table) {
-        throw bizare_error() << "[ERROR]: Failed to extend new table";
-      }
-
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-      std::cout << indent << "Before recursion: " << to_string() << std::endl;
-      std::cout << indent
-                << "Recursing with sub-key: " << key.substr(first_period + 1)
-                << std::endl;
-      indent = indent + "  ";
-      // recurse into it
-      std::shared_ptr<Base> &rtn = child_table->get_value_recursive(
-          key.substr(first_period + 1), allow_extend, allow_override);
-      indent = indent.substr(2);
-      return rtn;
-#else
-      // recurse into it
-      return child_table->get_value_recursive(key.substr(first_period + 1),
-                                              allow_extend, allow_override);
-#endif
+      // get the sequence
+      std::shared_ptr<Sequence> seq =
+          std::dynamic_pointer_cast<Sequence>(internal_rep.at(ki_pair.key));
+      // return the relevant index, request extension if allowed
+      return allow_extend ? seq->get_or_extend_get_value(ki_pair.index)
+                          : seq->get(ki_pair.index);
+    } else {
+      return kvp_it->second;
     }
   }
 }
 
-std::shared_ptr<fhicl::Base> const &
-fhicl::ParameterSet::get_value_recursive(fhicl::key_t const &key) const {
-  static std::shared_ptr<Base> const nullrtn(nullptr);
+std::shared_ptr<Base> const &ParameterSet::get_value(key_t const &key) const {
 
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-  std::cout << indent << "[cst] Looking for key: " << key << std::endl;
+#ifdef DEBUG_GET_VALUE
+  std::cout << indent << "[GV cst]: Getting value of key: " << std::quoted(key)
+            << std::endl;
+#endif
+
+  size_t first_period = key.find_first_of(".");
+  if (first_period != std::string::npos) { // No recusion allowed
+    throw bizare_error() << "[ERROR]: ParameterSet::get_value passed key "
+                         << std::quoted(key)
+                         << " but is not able to resolve FQKeys.";
+  }
+
+  auto ki_pair = get_key_index(key);
+  auto kvp_it = internal_rep.find(ki_pair.key);
+  if (kvp_it ==
+      internal_rep.end()) { // if the key doesn't exist, we cannot make it
+    return Base::empty();
+  }
+
+  // key already exists
+
+  if (ki_pair.has_index()) { // if key is sequence-like
+#ifdef DEBUG_GET_VALUE
+    std::string oi = indent;
+    indent = "+";
+#endif
+    if (!is_key_to_sequence(ki_pair.key)) { // is the existing value
+                                            // sequence-like?
+      // if not, we can't do anything about it, throw
+      throw wrong_fhicl_category()
+          << "[ERROR]: Attempted to access index of a sequence with key: "
+          << std::quoted(key) << ", however the value is of fhicl type "
+          << std::quoted(get_fhicl_category_string(key));
+    }
+#ifdef DEBUG_GET_VALUE
+    indent = oi;
+#endif
+    // if it is, get the sequence
+    std::shared_ptr<Sequence const> const seq =
+        std::dynamic_pointer_cast<Sequence const>(internal_rep.at(ki_pair.key));
+    // return the relevant index or Base::empty if it doesn't exist.
+    return seq->get(ki_pair.index);
+  } else {
+    return kvp_it->second;
+  }
+}
+
+std::shared_ptr<Base> &ParameterSet::get_value_recursive(key_t const &key,
+                                                         bool allow_extend,
+                                                         bool allow_override) {
+
+  if (!key.size()) {
+    throw null_key();
+  }
+  if (!valid_key(key)) {
+    throw invalid_key() << "[ERROR]: Invalid key " << std::quoted(key);
+  }
+
+#ifdef DEBUG_GET_VALUE
+  std::cout << indent << "[GVR]: Getting value of key: " << std::quoted(key)
+            << std::endl;
 #endif
 
   size_t first_period = key.find_first_of(".");
   if (first_period == std::string::npos) { // No more recusion
-
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-    std::cout << indent << "[cst] No periods, looking in this Parameter set."
-              << std::endl;
-#endif
-    auto ki_pair = get_key_index(key);
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-    std::cout << indent << "[cst] Split key to " << ki_pair.key << ", "
-              << ki_pair.index << std::endl;
-#endif
-    auto kvp_it = internal_rep.find(ki_pair.key);
-    if (kvp_it == internal_rep.end()) {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-      std::cout << indent
-                << "[cst] Final element doesn't exist within this parameter set"
-                << std::endl;
-#endif
-      return nullrtn;
-    } else {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-      std::cout << indent << "[cst] Found the key" << std::endl;
-#endif
-      // attempt a sequence dereference
-      if (ki_pair.has_index()) {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "[cst] Key has an index" << std::endl;
-#endif
-        if (!is_key_to_sequence(ki_pair.key)) {
-          throw wrong_fhicl_category()
-              << "[ERROR]: Attempted to access index of a sequence with key: "
-              << std::quoted(key) << ", however the value is of fhicl type "
-              << std::quoted(get_fhicl_category(key));
-        }
-        std::shared_ptr<fhicl::Sequence const> seq =
-            std::dynamic_pointer_cast<fhicl::Sequence const>(
-                internal_rep.at(ki_pair.key));
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "[cst] Before returning: " << to_string()
-                  << std::endl;
-#endif
-        return seq->get(ki_pair.index);
-      } else {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "[cst] Before returning: " << to_string()
-                  << std::endl;
-#endif
-        return kvp_it->second;
-      }
-    }
-  } else { // we must go deepr
-    std::string local_key = key.substr(0, first_period);
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-    std::cout << indent << "[cst] Local portion of the key: " << local_key
-              << std::endl;
-#endif
-    auto ki_pair = get_key_index(local_key);
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-    std::cout << indent << "[cst] Split key to " << ki_pair.key << ", "
-              << ki_pair.index << std::endl;
-#endif
-    auto kvp_it = internal_rep.find(ki_pair.key);
-    if (kvp_it == internal_rep.end()) {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-      std::cout << indent << "[cst] No such key found." << std::endl;
-      std::cout << indent << "[cst] Not allowed to extend, return nullptr."
-                << std::endl;
-#endif
-      return nullrtn;
-    } else {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-      std::cout << indent << "[cst] Key exists." << std::endl;
-#endif
-
-      std::shared_ptr<Base> const *child;
-      // attempt a sequence dereference
-      if (ki_pair.has_index()) {
-        if (!is_key_to_sequence(ki_pair.key)) {
-          throw wrong_fhicl_category()
-              << "[ERROR]: Attempted to access index of a sequence with key: "
-              << std::quoted(key) << ", however the value is of fhicl type "
-              << std::quoted(get_fhicl_category(key));
-        }
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent << "[cst] Found an index" << std::endl;
-#endif
-        std::shared_ptr<fhicl::Sequence const> seq =
-            std::dynamic_pointer_cast<fhicl::Sequence const>(
-                internal_rep.at(ki_pair.key));
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-        std::cout << indent
-                  << "[cst] Get or extending sequence (Get: " << ki_pair.index
-                  << ", Length: " << seq->size() << ")" << std::endl;
-#endif
-        child = &seq->get(ki_pair.index);
-        // cannot extend in const method
-        if (!(*child)) {
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-          std::cout << indent << "[cst] Cannot extend in const method."
-                    << std::endl;
-#endif
-          return nullrtn;
-        }
-      } else {
-        child = &kvp_it->second;
-      }
-
-      std::shared_ptr<fhicl::ParameterSet const> const child_table =
-          std::dynamic_pointer_cast<fhicl::ParameterSet const>(*child);
-
-      if (!child_table) {
-        throw wrong_fhicl_category()
-            << "[ERROR]: Attempting to recurse into a "
-               "child parameter set named: "
-            << std::quoted(local_key) << " from full key: " << std::quoted(key)
-            << ", however the value is of fhicl type "
-            << std::quoted(get_fhicl_category(key));
-      }
-
-#ifdef DEBUG_GET_VALUE_RECURSIVE
-      std::cout << indent << "[cst] Before recursion: " << to_string()
-                << std::endl;
-      std::cout << indent << "[cst] Recursing with sub-key: "
-                << key.substr(first_period + 1) << std::endl;
-      indent = indent + "  ";
-      std::shared_ptr<Base> const &rtn =
-          child_table->get_value_recursive(key.substr(first_period + 1));
-      indent = indent.substr(2);
-      return rtn;
-#else
-      return child_table->get_value_recursive(key.substr(first_period + 1));
-#endif
-    }
+    return get_value(key, allow_extend, allow_override);
   }
+  // we must go deepr
+  std::string local_key = key.substr(0, first_period);
+  std::shared_ptr<Base> &local_value =
+      get_value(local_key, allow_extend, allow_override);
+
+  if (!local_value) { // We didn't get a value, it doesn't exist and we aren't
+                      // allowed to create it
+    return local_value;
+  }
+
+  std::shared_ptr<ParameterSet> child_table =
+      std::dynamic_pointer_cast<ParameterSet>(local_value);
+
+  if (!child_table) {      // if the value is not of ParameterSet type
+    if (!allow_override) { // and we aren't allowed to override, throw
+      throw wrong_fhicl_category()
+          << "[ERROR]: Attempted to recurse into fhicl table: "
+          << std::quoted(local_key)
+          << " for resolution of: " << std::quoted(key)
+          << ", however the value is of fhicl type "
+          << std::quoted(get_fhicl_category_string(key));
+    }
+    // Flatten with a table.
+    local_value = std::make_shared<ParameterSet>();
+    child_table = std::dynamic_pointer_cast<ParameterSet>(local_value);
+  }
+
+#ifdef DEBUG_GET_VALUE
+  indent += "  ";
+  std::shared_ptr<Base> &rtn = child_table->get_value_recursive(
+      key.substr(first_period + 1), allow_extend, allow_override);
+  indent = indent.substr(2);
+  return rtn;
+#else
+  return child_table->get_value_recursive(key.substr(first_period + 1),
+                                          allow_extend, allow_override);
+#endif
 }
+
+std::shared_ptr<Base> const &
+ParameterSet::get_value_recursive(key_t const &key) const {
+
+  if (!key.size()) {
+    throw null_key();
+  }
+  if (!valid_key(key)) {
+    throw invalid_key() << "[ERROR]: Invalid key " << std::quoted(key);
+  }
+
+#ifdef DEBUG_GET_VALUE
+  std::cout << indent << "[GVR cst]: Getting value of key: " << std::quoted(key)
+            << std::endl;
+#endif
+
+  size_t first_period = key.find_first_of(".");
+  if (first_period == std::string::npos) { // No more recusion
+    return get_value(key);
+  }
+  // we must go deepr
+  std::string local_key = key.substr(0, first_period);
+  std::shared_ptr<Base> const &local_value = get_value(local_key);
+
+  if (!local_value) { // We didn't get a value, it doesn't exist and we aren't
+                      // allowed to create it
+    return local_value;
+  }
+
+  std::shared_ptr<ParameterSet const> const child_table =
+      std::dynamic_pointer_cast<ParameterSet const>(local_value);
+
+  if (!child_table) { // if the value is not of ParameterSet type, we aren't
+                      // allowed to override, throw
+    throw wrong_fhicl_category()
+        << "[ERROR]: Attempted to recurse into fhicl table: "
+        << std::quoted(local_key) << " for resolution of: " << std::quoted(key)
+        << ", however the value is of fhicl type "
+        << std::quoted(get_fhicl_category_string(key));
+  }
+
+#ifdef DEBUG_GET_VALUE
+  indent += "  ";
+  std::shared_ptr<Base> const &rtn =
+      child_table->get_value_recursive(key.substr(first_period + 1));
+  indent = indent.substr(2);
+  return rtn;
+#else
+  return child_table->get_value_recursive(key.substr(first_period + 1));
+#endif
+}
+
+} // namespace fhicl
 
 #endif

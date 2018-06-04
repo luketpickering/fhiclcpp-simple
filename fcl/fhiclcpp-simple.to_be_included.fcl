@@ -1,1 +1,3 @@
+BEGIN_PROLOG
 from_file: "fhiclcpp-simple.to_be_included.fcl"
+END_PROLOG

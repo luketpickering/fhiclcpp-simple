@@ -2,13 +2,20 @@ cmake_minimum_required (VERSION 2.6 FATAL_ERROR)
 
 project(fhiclcpp_simple)
 
-enable_testing()
-
 set (fhiclcpp_simple_VERSION_MAJOR 0)
-set (fhiclcpp_simple_VERSION_MINOR 1)
+set (fhiclcpp_simple_VERSION_MINOR 2)
 set (fhiclcpp_simple_VERSION_REVISION 0)
 
 set (fhiclcpp_simple_VERSION_STRING "v${fhiclcpp_simple_VERSION_MAJOR}r${fhiclcpp_simple_VERSION_MINOR}p${fhiclcpp_simple_VERSION_REVISION}")
+
+if(NOT DEFINED DOTEST)
+  SET(DOTEST FALSE)
+endif()
+
+
+if(DOTEST)
+  enable_testing()
+endif()
 
 #Set this to TRUE to enable build debugging messages
 set(BUILD_DEBUG_MSGS TRUE)
@@ -54,5 +61,7 @@ install(FILES
   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" DESTINATION
   ${CMAKE_INSTALL_PREFIX})
 
-file(GLOB EXAMPLE_FCL fcl/*.fcl)
-install(PROGRAMS ${EXAMPLE_FCL} DESTINATION ${CMAKE_INSTALL_PREFIX}/fcl)
+if(DOTEST)
+  file(GLOB EXAMPLE_FCL fcl/*.fcl)
+  install(PROGRAMS ${EXAMPLE_FCL} DESTINATION ${CMAKE_INSTALL_PREFIX}/fcl)
+endif()

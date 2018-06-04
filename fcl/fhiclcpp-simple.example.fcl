@@ -8,7 +8,7 @@ vector_of_numbers: [1,2,3,4]
 vector_of_numbers_excess_whitespace: [1 , 2 , 3 , 4 ]
 vector_of_strings: [string, "string, string", string]
 vector_of_vectors: [[1,2],[3,4]]
-tuple: [1,b,[c,d],{e: f}]
+tuple: [1,b,[c,d],{e: f z: [string, "string, string", string]}]
 table: {
   key: value
   sub_table: {
@@ -18,12 +18,11 @@ table: {
 }
 table.sub_table.key: override
 table.sub_table.extend_vector[4].key: value
-table.sub_table.extend_vector[10].table: {key: value}
-
-key: @local::key
+ref_key: @local::key
 table_2: {
   @table::table.sub_table
-  vector_of_string: @sequence::vector_of_strings
+  vector_of_string_2: ["more strings", @sequence::vector_of_strings]
 }
+table.sub_table.extend_vector[10].table: {key: value}
 
 from_other_file: @local::from_file

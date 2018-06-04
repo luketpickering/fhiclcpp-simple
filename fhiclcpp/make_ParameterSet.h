@@ -13,7 +13,7 @@ ParameterSet make_ParameterSet(std::string const &filename) {
   fhicl::fhicl_doc doc = fhicl::read_doc(filename);
   doc.resolve_includes();
 
-  return recursive_build_fhicl(doc);
+  return parse_fhicl_document(doc);
 }
 } // namespace fhicl
 

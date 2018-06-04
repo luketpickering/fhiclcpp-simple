@@ -156,8 +156,9 @@ ParseToVect(std::string const &inp, std::string const &delim, bool PushEmpty,
         size_t matching_bracket = find_matching_bracket(
             inpCpy, brackets.first, brackets.second, nextBracket);
         if (matching_bracket > nextOccurence) {
-          nextOccurence = inpCpy.find(delim, matching_bracket + 1);
-          break;
+          bracketSearchZero = matching_bracket + 1;
+          nextOccurence = inpCpy.find(delim, bracketSearchZero);
+          continue;
         } else if (matching_bracket < nextOccurence) {
           bracketSearchZero = matching_bracket + 1;
           continue;

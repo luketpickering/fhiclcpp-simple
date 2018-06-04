@@ -9,13 +9,17 @@
 #include <memory>
 
 namespace fhicl {
+class ParameterSet;
+// forward declaration for functions found in utility.hxx
+std::shared_ptr<Base> deep_copy_value(std::shared_ptr<Base> const original);
+
 class Sequence : public Base {
   std::vector<std::shared_ptr<Base>> internal_rep;
 
   void from(std::string const &str);
 
 public:
-  std::shared_ptr<fhicl::Base> &get_or_extend_get_value(size_t idx) {
+  std::shared_ptr<Base> &get_or_extend_get_value(size_t idx) {
     if (idx >= internal_rep.size()) {
       while (idx >= internal_rep.size()) {
         internal_rep.push_back(std::make_shared<Atom>());
@@ -23,22 +27,26 @@ public:
     }
     return internal_rep[idx];
   }
-  std::shared_ptr<fhicl::Base> &get(size_t idx) {
-    static std::shared_ptr<fhicl::Base> nullrtn(nullptr);
-    // enusre that any busy_body who altered it by accident get flattened;
-    nullrtn = nullptr;
-
+  std::shared_ptr<Base> &get(size_t idx) {
+    if (idx >= internal_rep.size()) {
+      return Base::empty();
+    }
+    return internal_rep[idx];
+  }
+  std::shared_ptr<Base> const &get(size_t idx) const {
+    static std::shared_ptr<Base> const nullrtn(nullptr);
     if (idx >= internal_rep.size()) {
       return nullrtn;
     }
     return internal_rep[idx];
   }
-  std::shared_ptr<fhicl::Base> const &get(size_t idx) const {
-    static std::shared_ptr<fhicl::Base> const nullrtn(nullptr);
-    if (idx >= internal_rep.size()) {
-      return nullrtn;
-    }
-    return internal_rep[idx];
+
+  void put(std::shared_ptr<Base> const &obj) {
+    internal_rep.push_back(deep_copy_value(obj));
+  }
+
+  void put(std::shared_ptr<Base> &&obj) {
+    internal_rep.push_back(std::move(obj));
   }
 
   size_t size() const { return internal_rep.size(); }
@@ -53,8 +61,10 @@ public:
   typename std::enable_if<is_seq<T>::value, T>::type as() const {
     return string_parsers::str2T<T>(to_string());
   };
-  Sequence(std::string const &str) : internal_rep() { from(str); }
   Sequence() : internal_rep() {}
+  Sequence(std::string const &str) : internal_rep() { from(str); }
+  Sequence(Sequence &&other) : internal_rep(std::move(other.internal_rep)) {}
+  Sequence(Sequence const &other) : Sequence() { splice(other); }
 
   std::string to_string() const {
     std::stringstream ss("");
@@ -92,31 +102,35 @@ public:
   }
   std::string to_indented_string(size_t indent_level) const {
     std::stringstream ss("");
-    ss << "[" << std::endl;
     for (size_t i = 0; i < internal_rep.size(); ++i) {
-      for (size_t i_it = 0; i_it < indent_level + 2; ++i_it) {
+      for (size_t i_it = 0; i_it < indent_level; ++i_it) {
         ss << " ";
       }
       std::shared_ptr<ParameterSet> ps =
           std::dynamic_pointer_cast<ParameterSet>(internal_rep[i]);
+      std::shared_ptr<Sequence> seq =
+          std::dynamic_pointer_cast<Sequence>(internal_rep[i]);
       if (ps) {
         ss << "{ " << std::endl
-           << internal_rep[i]->to_indented_string(indent_level + 4)
+           << internal_rep[i]->to_indented_string(indent_level + 2)
            << std::endl;
-        for (size_t i_it = 0; i_it < (indent_level + 2); ++i_it) {
+        for (size_t i_it = 0; i_it < indent_level; ++i_it) {
           ss << " ";
         }
-        ss << "}" << ((i + 1 == internal_rep.size()) ? "" : ",");
+        ss << "}" << ((i + 1 == internal_rep.size()) ? "" : ",\n");
+      } else if (seq) {
+        ss << "[ " << std::endl
+           << internal_rep[i]->to_indented_string(indent_level + 2)
+           << std::endl;
+        for (size_t i_it = 0; i_it < indent_level; ++i_it) {
+          ss << " ";
+        }
+        ss << "]" << ((i + 1 == internal_rep.size()) ? "" : ",\n");
       } else {
         ss << internal_rep[i]->to_indented_string(indent_level + 2)
-           << ((i + 1 == internal_rep.size()) ? "" : ",");
+           << ((i + 1 == internal_rep.size()) ? "" : ",\n");
       }
-      ss << std::endl;
     }
-    for (size_t i_it = 0; i_it < indent_level; ++i_it) {
-      ss << " ";
-    }
-    ss << "]";
     return ss.str();
   }
   std::string to_indented_string_with_src_info(size_t indent_level) const {
@@ -137,8 +151,7 @@ public:
           ss << " ";
         }
         ss << "}"
-           << "-- <NOINFO>"
-           << ((i + 1 == internal_rep.size()) ? "" : ",");
+           << "-- <NOINFO>" << ((i + 1 == internal_rep.size()) ? "" : ",");
       } else {
         ss << internal_rep[i]->to_indented_string_with_src_info(indent_level +
                                                                 2)
@@ -151,6 +164,38 @@ public:
     }
     ss << "]";
     return ss.str();
+  }
+
+  void splice(Sequence const &other,
+              size_t indx = std::numeric_limits<size_t>::max()) {
+    std::vector<std::shared_ptr<Base>>::iterator insert_it = internal_rep.end();
+
+    if (indx <= internal_rep.size()) {
+      insert_it = internal_rep.begin();
+      std::advance(insert_it, indx);
+    }
+
+    for (size_t it = 0; it < other.internal_rep.size(); ++it) {
+      insert_it = internal_rep.insert(insert_it,
+                                      deep_copy_value(other.internal_rep[it]));
+      std::advance(insert_it, 1);
+    }
+  }
+
+  void splice(Sequence &&other,
+              size_t indx = std::numeric_limits<size_t>::max()) {
+    std::vector<std::shared_ptr<Base>>::iterator insert_it = internal_rep.end();
+
+    if (indx <= internal_rep.size()) {
+      insert_it = internal_rep.begin();
+      std::advance(insert_it, indx);
+    }
+
+    for (size_t it = 0; it < other.internal_rep.size(); ++it) {
+      insert_it =
+          internal_rep.insert(insert_it, std::move(other.internal_rep[it]));
+      std::advance(insert_it, 1);
+    }
   }
 };
 } // namespace fhicl

@@ -41,6 +41,8 @@ public:
   };
   Atom(std::string const &str) { from(str); }
   Atom(std::string &&str) { from(std::move(str)); }
+  Atom(Atom const &other) { internal_rep = other.internal_rep; }
+  Atom(Atom &&other) { internal_rep = std::move(other.internal_rep); }
   Atom() { internal_rep = "@nil"; }
 
   std::string to_string() const { return as<std::string>(); }

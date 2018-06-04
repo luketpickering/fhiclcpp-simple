@@ -122,9 +122,10 @@ int main() {
     assert((test_v_d == std::vector<double>({5, 5.5, 5E5})));
 
     std::vector<std::string> test_v_s = str2T<std::vector<std::string>>(
-        "[5, \"bla bla\", bla, \"hey ,-|| bla\", hello]");
-    assert((test_v_s == std::vector<std::string>(
-                            {"5", "bla bla", "bla", "hey ,-|| bla", "hello"})));
+        "[5, \"bla bla\", bla, \"hey ()(,),,-|| bla\", hello]");
+    assert((test_v_s ==
+            std::vector<std::string>(
+                {"5", "bla bla", "bla", "hey ()(,),,-|| bla", "hello"})));
 
     bool threw = false;
     try {

@@ -12,5 +12,5 @@ int main(int argc, char const *argv[]) {
   }
 
   fhicl::ParameterSet ps = fhicl::make_ParameterSet(argv[1]);
-  std::cout << ps.to_indented_string_with_src_info() << std::endl;
+  std::cout << ps.to_indented_string() << std::endl;
 }
