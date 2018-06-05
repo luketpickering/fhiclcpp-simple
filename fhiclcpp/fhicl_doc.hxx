@@ -142,8 +142,8 @@ class fhicl_doc : private std::vector<fhicl_doc_line> {
               << std::quoted(inc_file_name)
               << " not found, or FHICL_FILE_PATH (="
               << (getenv("FHICL_FILE_PATH")
-                      ? std::quoted(getenv("FHICL_FILE_PATH"))
-                      : std::quoted(""))
+                      ? std::quoted(std::string(getenv("FHICL_FILE_PATH")))
+                      : std::quoted(std::string("")))
               << ") improperly defined.";
         }
         include_chain.push_back(inc_file_name);
