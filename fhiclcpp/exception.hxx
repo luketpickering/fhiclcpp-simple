@@ -26,6 +26,17 @@ NEW_EXCEPT(malformed_document);
 
 #undef NEW_EXCEPT
 
+struct unexpected_newline : public malformed_document {
+  unexpected_newline() : malformed_document() {}
+  unexpected_newline(unexpected_newline const &other)
+      : malformed_document(other) {}
+  template <typename T> unexpected_newline &operator<<(T const &obj) {
+    msgstrm << obj;
+    msg = msgstrm.str();
+    return (*this);
+  }
+};
+
 } // namespace fhicl
 
 #endif

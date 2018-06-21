@@ -9,11 +9,12 @@
 
 namespace fhicl {
 
-inline ParameterSet parse_fhicl_document(fhicl_doc const &, ParameterSet const &,
-                                  ParameterSet const &, fhicl_doc_range,
-                                  key_t const &);
+inline ParameterSet parse_fhicl_document(fhicl_doc const &,
+                                         ParameterSet const &,
+                                         ParameterSet const &,
+                                         linedoc::doc_range, key_t const &);
 
-// #define FHICLCPP_SIMPLE_PARSERS_DEBUG
+#define FHICLCPP_SIMPLE_PARSERS_DEBUG
 
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
 std::string indent = "";
@@ -72,41 +73,41 @@ deep_copy_resolved_reference_value(key_t const &key,
 }
 
 inline std::shared_ptr<Base>
-parse_object(fhicl_doc const &doc, fhicl_doc_range doc_range,
-             fhicl_doc_line_point &next_character,
+parse_object(fhicl_doc const &doc, linedoc::doc_range range,
+             linedoc::doc_line_point &next_character,
              ParameterSet const &working_set, ParameterSet const &PROLOG,
              key_t const &current_key, bool build_sequence = false) {
 
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
-  if (!doc_range.end.isend()) {
+  if (!doc.is_end(range.end)) {
     std::cout << indent
-              << "[INFO]: Parsing first object between: " << doc_range.begin
-              << " = " << std::quoted(doc.get_line(doc_range.begin, true))
-              << " and " << doc_range.end << " = "
-              << std::quoted(doc.get_line(doc_range.end, true)) << std::endl;
+              << "[INFO]: Parsing first object between: " << range.begin
+              << " = " << std::quoted(doc.get_line(range.begin, true))
+              << " and " << range.end << " = "
+              << std::quoted(doc.get_line(range.end, true)) << std::endl;
   } else {
-    std::cout << indent
-              << "[INFO]: Parsing first object from: " << doc_range.begin
-              << " = " << std::quoted(doc.get_line(doc_range.begin, true))
+    std::cout << indent << "[INFO]: Parsing first object from: " << range.begin
+              << " = " << std::quoted(doc.get_line(range.begin, true))
               << std::endl;
   }
 #endif
 
-  fhicl_doc_line_point next_not_space =
-      doc.find_first_not_of(" ", doc_range.begin, false);
+  linedoc::doc_line_point next_not_space =
+      doc.find_first_not_of(" ", range.begin, range.begin.get_EOL());
 
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
   std::cout << indent << "[INFO]: Next not space found at: "
             << std::quoted(doc.get_line(next_not_space, true)) << std::endl;
 #endif
 
-  if (next_not_space.isendofline()) {
-    throw malformed_document()
+  if (doc.is_end(next_not_space)) {
+    throw unexpected_newline()
         << "[ERROR]: When searching for value to key defined on line: "
-        << std::quoted(doc.get_line(doc_range.begin, true)) << " at "
-        << std::quoted(doc.get_line_info(doc_range.begin))
+        << std::quoted(doc.get_line(range.begin, true)) << " at "
+        << std::quoted(doc.get_line_info(range.begin))
         << " failed to find value on same line.";
   }
+
   switch (doc.get_char(next_not_space)) {
   case '{': {
     // table member
@@ -120,9 +121,9 @@ parse_object(fhicl_doc const &doc, fhicl_doc_range doc_range,
     indent += "  ";
 #endif
     std::shared_ptr<ParameterSet> table =
-        std::make_shared<ParameterSet>(std::move(parse_fhicl_document(
+        std::make_shared<ParameterSet>(parse_fhicl_document(
             doc, working_set, PROLOG,
-            {doc.advance(next_not_space), next_character}, current_key)));
+            {doc.advance(next_not_space), next_character}, current_key));
     next_character = doc.advance(next_character);
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
     indent = indent.substr(2);
@@ -131,7 +132,7 @@ parse_object(fhicl_doc const &doc, fhicl_doc_range doc_range,
   }
   case '[': {
     // list member
-    fhicl_doc_line_point seq_end =
+    linedoc::doc_line_point seq_end =
         find_matching_bracket(doc, '[', ']', next_not_space);
 
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
@@ -146,8 +147,19 @@ parse_object(fhicl_doc const &doc, fhicl_doc_range doc_range,
         get_list_elements(doc, {doc.advance(next_not_space), seq_end}, true);
 
     for (size_t el_it = 0; el_it < seq_element_str_reps.size(); ++el_it) {
-      fhicl_doc_range el_range = seq_element_str_reps[el_it];
-      fhicl_doc_line_point last_parsed_char;
+      linedoc::doc_range el_range = seq_element_str_reps[el_it];
+      if (!doc.same_line(el_range.begin, el_range.end)) {
+        throw unexpected_newline()
+            << "[ERROR]: When parsing sequence, element " << el_it
+            << " started at " << el_range.begin << " on line "
+            << std::quoted(doc.get_line(el_range.begin, true)) << " from "
+            << std::quoted(doc.get_line_info(el_range.begin))
+            << " and appears to end at " << el_range.end << " on line "
+            << std::quoted(doc.get_line(el_range.end, true)) << " from "
+            << std::quoted(doc.get_line_info(el_range.end))
+            << " no newlines are allowed within an element.";
+      }
+      linedoc::doc_line_point last_parsed_char;
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
       std::cout << indent << " -- Sequence element between "
                 << std::quoted(doc.get_line(el_range.begin, true)) << " and "
@@ -165,9 +177,10 @@ parse_object(fhicl_doc const &doc, fhicl_doc_range doc_range,
       string_parsers::trim(unused_chars);
       if (unused_chars.size()) {
         throw malformed_document()
-            << "[ERROR]: When parsing sequence, started at " << el_range.begin
-            << " on line " << std::quoted(doc.get_line(el_range.begin, true))
-            << " from " << std::quoted(doc.get_line_info(el_range.begin))
+            << "[ERROR]: When parsing sequence, element " << el_it
+            << " started at " << el_range.begin << " on line "
+            << std::quoted(doc.get_line(el_range.begin, true)) << " from "
+            << std::quoted(doc.get_line_info(el_range.begin))
             << " failed to parse: " << std::quoted(unused_chars) << " on line "
             << std::quoted(doc.get_line(last_parsed_char, true)) << " from "
             << std::quoted(doc.get_line_info(last_parsed_char))
@@ -205,11 +218,11 @@ parse_object(fhicl_doc const &doc, fhicl_doc_range doc_range,
   }
   case '\"': {
     // string member
-    next_character =
-        doc.find_first_of("\"", doc.advance(next_not_space), false);
+    next_character = doc.find_first_of("\"", doc.advance(next_not_space),
+                                       next_not_space.get_EOL());
 
-    if (next_character.isendofline()) {
-      throw malformed_document()
+    if (doc.is_end(next_character)) {
+      throw unexpected_newline()
           << "[ERROR]: Failed to find matching quote to: "
           << std::quoted(doc.get_line(next_not_space, true)) << " from "
           << std::quoted(doc.get_line_info(next_not_space))
@@ -226,12 +239,12 @@ parse_object(fhicl_doc const &doc, fhicl_doc_range doc_range,
     return std::make_shared<Atom>(value);
   }
   case '@': {
-    next_character =
-        doc.find_first_of(" :", doc.advance(next_not_space), false);
+    next_character = doc.find_first_of(" :", doc.advance(next_not_space),
+                                       next_not_space.get_EOL());
     std::string directive =
         doc.substr(doc.advance(next_not_space), next_character);
 
-    if (!next_character.isend()) {
+    if (!doc.is_end(next_character)) {
       if (directive == "nil") {
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
         std::cout << indent << "[INFO]: Found nil directive at "
@@ -248,11 +261,13 @@ parse_object(fhicl_doc const &doc, fhicl_doc_range doc_range,
               << ", but instead found: "
               << doc.get_char(doc.advance(next_character));
         }
-        fhicl_doc_line_point end_of_directive = doc.advance(next_character, 2);
-        next_character = doc.find_first_of(" ", end_of_directive, false);
+        linedoc::doc_line_point end_of_directive =
+            doc.advance(next_character, 2);
+        next_character = doc.find_first_of(" ", end_of_directive,
+                                           end_of_directive.get_EOL());
 
-        if (next_character > doc_range.end) {
-          next_character = doc_range.end;
+        if (doc.is_later(next_character, range.end)) {
+          next_character = range.end;
         }
 
         key_t directive_key = doc.substr(end_of_directive, next_character);
@@ -308,9 +323,10 @@ parse_object(fhicl_doc const &doc, fhicl_doc_range doc_range,
     }
   }
   default: { // simple atom type
-    next_character = doc.find_first_of(" ", next_not_space, false);
-    if (next_character > doc_range.end) {
-      next_character = doc_range.end;
+    next_character =
+        doc.find_first_of(" ", next_not_space, next_not_space.get_EOL());
+    if (doc.is_later(next_character, range.end)) {
+      next_character = range.end;
     }
     std::string value = doc.substr(next_not_space, next_character);
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
@@ -327,7 +343,7 @@ ParameterSet
 parse_fhicl_document(fhicl_doc const &doc,
                      ParameterSet const &_working_set = ParameterSet(),
                      ParameterSet const &_PROLOG = ParameterSet(),
-                     fhicl_doc_range range = fhicl_doc_range::all(),
+                     linedoc::doc_range range = linedoc::doc_range::whole_doc(),
                      key_t const &current_key = "") {
 
   bool in_prolog = false;
@@ -336,6 +352,7 @@ parse_fhicl_document(fhicl_doc const &doc,
   std::shared_ptr<ParameterSet> working_set =
       std::make_shared<ParameterSet>(_working_set);
   std::shared_ptr<ParameterSet> ps;
+
   if (current_key
           .size()) { // if we have recursed into a child, the working set will
                      // contain information and the currently building parameter
@@ -353,27 +370,31 @@ parse_fhicl_document(fhicl_doc const &doc,
     ps = working_set;
   }
 
-  fhicl_doc_line_point read_ptr = doc.find_first_not_of(" ", range.begin);
-  range.end = doc.validate_line_point(range.end);
+  linedoc::doc_line_point read_ptr = doc.find_first_not_of(" \n", range.begin);
 
-  while (read_ptr < range.end) {
-
-    fhicl_doc_line_point next_char = doc.find_first_of(" ", read_ptr, false);
+  while (doc.is_earlier(read_ptr, range.end)) {
 
     if ((doc.get_char(read_ptr) == '#') ||
-        (doc.substr(read_ptr, doc.advance(read_ptr, 2)) == "//")) {
+        ((doc.get_char(read_ptr) == '/') &&
+         (doc.substr(read_ptr, doc.advance(read_ptr, 2)) == "//"))) {
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
       std::cout << indent << "Found comment at: " << read_ptr << " "
                 << std::quoted(doc.get_line(read_ptr, true)) << " from "
                 << doc.get_line_info(read_ptr) << std::endl;
 #endif
       // move to the next line
-      read_ptr = doc.advance_line(next_char);
+      read_ptr = doc.advance_line(read_ptr);
       continue;
     }
 
-    std::string token = doc.substr(read_ptr, next_char);
+    linedoc::doc_line_point next_char =
+        doc.find_first_of(" ", read_ptr, read_ptr.get_EOL());
+    // Tokens cannot span lines
+    if (doc.is_end(next_char)) {
+      next_char = read_ptr.get_EOL();
+    }
 
+    std::string token = doc.substr(read_ptr, next_char);
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
     std::cout << indent << "Reading: ("
               << std::quoted(doc.get_line(read_ptr, true)) << " -- "
@@ -410,9 +431,9 @@ parse_fhicl_document(fhicl_doc const &doc,
           "@table::") { // @table:: is the only directive that is allowed
         // to be keyless and may only appear within a table context
 
-        fhicl_doc_line_point key_start = doc.advance(read_ptr, 8);
-        fhicl_doc_line_point next_space =
-            doc.find_first_of(" ", key_start, false);
+        linedoc::doc_line_point key_start = doc.advance(read_ptr, 8);
+        linedoc::doc_line_point next_space =
+            doc.find_first_of(" ", key_start, key_start.get_EOL());
 
         key_t table_key = doc.substr(key_start, next_space);
 
@@ -437,7 +458,7 @@ parse_fhicl_document(fhicl_doc const &doc,
     } else {
       if (token.back() != ':') {
         throw malformed_document()
-            << "[ERROR]: Expected a key declaraction like \"key: \", but "
+            << "[ERROR]: Expected a key declaration like \"key: \", but "
                "instead found "
             << std::quoted(token) << " at "
             << std::quoted(doc.get_line(read_ptr, true)) << " from "
@@ -454,8 +475,8 @@ parse_fhicl_document(fhicl_doc const &doc,
 #endif
 
       std::shared_ptr<Base> new_obj =
-          parse_object(doc, {next_char, fhicl_doc_line_point::end()}, next_char,
-                       *working_set, *PROLOG, new_object_key);
+          parse_object(doc, {next_char, linedoc::doc_line_point::end()},
+                       next_char, *working_set, *PROLOG, new_object_key);
 
       (in_prolog ? PROLOG : ps)
           ->put_with_custom_history(key, std::move(new_obj),
@@ -467,10 +488,10 @@ parse_fhicl_document(fhicl_doc const &doc,
               << "\' from line: " << std::quoted(doc.get_line(next_char, true))
               << "." << std::endl;
 #endif
-    if (!next_char.isend()) {
-      read_ptr = doc.find_first_not_of(" ", next_char);
+    if (!doc.is_end(next_char)) {
+      read_ptr = doc.find_first_not_of(" \n", next_char);
     } else {
-      read_ptr = fhicl_doc_line_point::end();
+      read_ptr = linedoc::doc_line_point::end();
     }
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
     std::cout << indent << "Next to read: " << read_ptr << " = \'"

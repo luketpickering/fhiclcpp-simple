@@ -14,6 +14,11 @@
 #include <iomanip>
 #include <memory>
 
+namespace linedoc {
+template <typename T> struct doc_range_;
+typedef doc_range_<char> doc_range;
+} // namespace linedoc
+
 namespace fhicl {
 enum class fhicl_category;
 
@@ -26,15 +31,13 @@ typedef uint32_t ParameterSetID;
 typedef std::string key_t;
 
 class fhicl_doc;
-class fhicl_doc_range;
-class fhicl_doc_line_point;
 
 class ParameterSet : public Base {
 
   friend ParameterSet parse_fhicl_document(fhicl_doc const &,
                                            ParameterSet const &,
                                            ParameterSet const &,
-                                           fhicl_doc_range, key_t const &);
+                                           linedoc::doc_range, key_t const &);
 
   template <typename T>
   friend std::shared_ptr<T>

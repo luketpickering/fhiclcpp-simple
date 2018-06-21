@@ -1,5 +1,6 @@
 if(DOTEST)
   add_executable(types_tests tests.cxx)
+  add_dependencies(types_tests linedoc)
   install(TARGETS types_tests DESTINATION test)
 
   add_test(NAME types_tests COMMAND types_tests)

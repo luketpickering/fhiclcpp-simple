@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.6 FATAL_ERROR)
 project(fhiclcpp_simple)
 
 set (fhiclcpp_simple_VERSION_MAJOR 0)
-set (fhiclcpp_simple_VERSION_MINOR 2)
+set (fhiclcpp_simple_VERSION_MINOR 3)
 set (fhiclcpp_simple_VERSION_REVISION 0)
 
 set (fhiclcpp_simple_VERSION_STRING "v${fhiclcpp_simple_VERSION_MAJOR}r${fhiclcpp_simple_VERSION_MINOR}p${fhiclcpp_simple_VERSION_REVISION}")
@@ -45,6 +45,8 @@ endif()
 ################################################################################
 #                            Check Dependencies
 ################################################################################
+
+include(${CMAKE_SOURCE_DIR}/cmake/linedocSetup.cmake)
 
 SET(EXTRA_CXX_FLAGS)
 SET(INCLUDE_DIRECTORIES)
