@@ -34,6 +34,6 @@ function add_to_FHICL_FILE_PATH () {
 
 add_to_PATH "@CMAKE_INSTALL_PREFIX@/bin"
 
-if [ "@DO_TEST@" ]; then
+if [ "@DOTEST@" ]; then
   add_to_FHICL_FILE_PATH "@CMAKE_INSTALL_PREFIX@/fcl"
 fi
