@@ -152,7 +152,7 @@ parse_object(fhicl_doc const &doc, linedoc::doc_range range,
       std::string unused_chars = doc.substr(last_parsed_char, el_range.end);
       string_parsers::trim(unused_chars);
       if (unused_chars.size()) {
-        throw malformed_document()
+        throw unexpected_newline()
             << "[ERROR]: When parsing sequence, element " << el_it
             << " started at " << el_range.begin << " on line "
             << std::quoted(doc.get_line(el_range.begin, true)) << " from "
