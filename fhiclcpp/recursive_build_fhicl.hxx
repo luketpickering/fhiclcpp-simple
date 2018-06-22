@@ -79,52 +79,39 @@ parse_object(fhicl_doc const &doc, linedoc::doc_range range,
              key_t const &current_key, bool build_sequence = false) {
 
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
-  if (!doc.is_end(range.end)) {
-    std::cout << indent
-              << "[INFO]: Parsing first object between: " << range.begin
-              << " = " << std::quoted(doc.get_line(range.begin, true))
-              << " and " << range.end << " = "
-              << std::quoted(doc.get_line(range.end, true)) << std::endl;
-  } else {
-    std::cout << indent << "[INFO]: Parsing first object from: " << range.begin
-              << " = " << std::quoted(doc.get_line(range.begin, true))
-              << std::endl;
-  }
+  std::cout << indent << "[INFO]: Parsing next object between: " << range.begin
+            << " = " << std::quoted(doc.get_line(range.begin, true)) << " and "
+            << range.end << " = " << std::quoted(doc.get_line(range.end, true))
+            << std::endl;
 #endif
 
-  linedoc::doc_line_point next_not_space =
-      doc.find_first_not_of(" ", range.begin, range.begin.get_EOL());
+  linedoc::doc_line_point next_not_break =
+      doc.find_first_not_of(" \n", range.begin, range.end);
 
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
   std::cout << indent << "[INFO]: Next not space found at: "
-            << std::quoted(doc.get_line(next_not_space, true)) << std::endl;
+            << std::quoted(doc.get_line(next_not_break, true)) << std::endl;
 #endif
-
-  if (doc.is_end(next_not_space)) {
-    throw unexpected_newline()
-        << "[ERROR]: When searching for value to key defined on line: "
-        << std::quoted(doc.get_line(range.begin, true)) << " at "
-        << std::quoted(doc.get_line_info(range.begin))
-        << " failed to find value on same line.";
-  }
-
-  switch (doc.get_char(next_not_space)) {
+  char next_not_break_char = doc.get_char(next_not_break);
+  switch (next_not_break_char) {
   case '{': {
     // table member
-    next_character = find_matching_bracket(doc, '{', '}', next_not_space);
+    linedoc::doc_line_point matching_bracket =
+        find_matching_bracket(doc, '{', '}', next_not_break);
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
     std::cout << indent << "[INFO]: Found table KV: {"
               << std::quoted(current_key) << ": {"
               << std::quoted(
-                     doc.substr(doc.advance(next_not_space), next_character))
-              << "} } at " << doc.get_line_info(next_not_space) << std::endl;
+                     doc.substr(doc.advance(next_not_break), matching_bracket))
+              << "} } at " << doc.get_line_info(next_not_break) << std::endl;
     indent += "  ";
 #endif
     std::shared_ptr<ParameterSet> table =
         std::make_shared<ParameterSet>(parse_fhicl_document(
             doc, working_set, PROLOG,
-            {doc.advance(next_not_space), next_character}, current_key));
-    next_character = doc.advance(next_character);
+            {doc.advance(next_not_break), matching_bracket}, current_key));
+
+    next_character = doc.advance(matching_bracket);
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
     indent = indent.substr(2);
 #endif
@@ -133,32 +120,21 @@ parse_object(fhicl_doc const &doc, linedoc::doc_range range,
   case '[': {
     // list member
     linedoc::doc_line_point seq_end =
-        find_matching_bracket(doc, '[', ']', next_not_space);
+        find_matching_bracket(doc, '[', ']', next_not_break);
 
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
     std::cout << indent << "[INFO]: Found sequence object: "
-              << std::quoted(doc.substr(next_not_space, doc.advance(seq_end)))
-              << ". at " << std::quoted(doc.get_line(next_not_space, true))
-              << " from " << doc.get_line_info(next_not_space) << std::endl;
+              << std::quoted(doc.substr(next_not_break, doc.advance(seq_end)))
+              << ". at " << std::quoted(doc.get_line(next_not_break, true))
+              << " from " << doc.get_line_info(next_not_break) << std::endl;
 #endif
 
     std::shared_ptr<Sequence> seq = std::make_shared<Sequence>();
     auto const &seq_element_str_reps =
-        get_list_elements(doc, {doc.advance(next_not_space), seq_end}, true);
+        get_list_elements(doc, {doc.advance(next_not_break), seq_end}, true);
 
     for (size_t el_it = 0; el_it < seq_element_str_reps.size(); ++el_it) {
       linedoc::doc_range el_range = seq_element_str_reps[el_it];
-      if (!doc.same_line(el_range.begin, el_range.end)) {
-        throw unexpected_newline()
-            << "[ERROR]: When parsing sequence, element " << el_it
-            << " started at " << el_range.begin << " on line "
-            << std::quoted(doc.get_line(el_range.begin, true)) << " from "
-            << std::quoted(doc.get_line_info(el_range.begin))
-            << " and appears to end at " << el_range.end << " on line "
-            << std::quoted(doc.get_line(el_range.end, true)) << " from "
-            << std::quoted(doc.get_line_info(el_range.end))
-            << " no newlines are allowed within an element.";
-      }
       linedoc::doc_line_point last_parsed_char;
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
       std::cout << indent << " -- Sequence element between "
@@ -197,10 +173,10 @@ parse_object(fhicl_doc const &doc, linedoc::doc_range range,
       // Handle the result of @sequence directives.
       std::shared_ptr<Sequence> child_seq =
           std::dynamic_pointer_cast<Sequence>(el_obj);
-      if (child_seq) { // is sequence directive, splice
+      if (child_seq) {
         std::string str_rep = doc.substr(el_range);
         string_parsers::trim(str_rep);
-        if (str_rep.find("@sequence") == 0) {
+        if (str_rep.find("@sequence") == 0) { // is sequence directive, splice
           seq->splice(std::move(*child_seq));
         } else {
           seq->put(std::move(el_obj));
@@ -216,124 +192,194 @@ parse_object(fhicl_doc const &doc, linedoc::doc_range range,
     next_character = doc.advance(seq_end);
     return seq;
   }
+  case '\'':
   case '\"': {
+    if (next_not_break.line_no != range.begin.line_no) {
+      throw unexpected_newline()
+          << "[ERROR]: When searching for value to key defined on line: "
+          << std::quoted(doc.get_line(range.begin, true)) << " at "
+          << std::quoted(doc.get_line_info(range.begin))
+          << " found a string value starting at "
+          << std::quoted(doc.get_line_info(next_not_break))
+          << ", only tables and sequences may start on a new line.";
+    }
+    linedoc::doc_line_point first_string_point = doc.advance(next_not_break);
     // string member
-    next_character = doc.find_first_of("\"", doc.advance(next_not_space),
-                                       next_not_space.get_EOL());
+    linedoc::doc_line_point matching_quote = doc.find_first_of(
+        next_not_break_char, first_string_point, next_not_break.get_EOL());
 
-    if (doc.is_end(next_character)) {
+    if (doc.is_end(matching_quote)) {
       throw unexpected_newline()
           << "[ERROR]: Failed to find matching quote to: "
-          << std::quoted(doc.get_line(next_not_space, true)) << " from "
-          << std::quoted(doc.get_line_info(next_not_space))
+          << std::quoted(doc.get_line(next_not_break, true)) << " from "
+          << std::quoted(doc.get_line_info(next_not_break))
           << ". N.B. quoted strings cannot span multiple lines.";
     }
 
-    std::string value = doc.substr(doc.advance(next_not_space), next_character);
-    next_character = doc.advance(next_character);
+    std::string value = doc.substr(first_string_point, matching_quote);
+    next_character = doc.advance(matching_quote);
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
     std::cout << indent << "[INFO]: Found KV: {" << std::quoted(current_key)
               << ":" << std::quoted(value) << "}. at "
-              << doc.get_line_info(next_not_space) << std::endl;
+              << doc.get_line_info(next_not_break) << std::endl;
 #endif
     return std::make_shared<Atom>(value);
   }
   case '@': {
-    next_character = doc.find_first_of(" :", doc.advance(next_not_space),
-                                       next_not_space.get_EOL());
-    std::string directive =
-        doc.substr(doc.advance(next_not_space), next_character);
+    if (next_not_break.line_no != range.begin.line_no) {
+      throw unexpected_newline()
+          << "[ERROR]: When searching for value to key defined on line: "
+          << std::quoted(doc.get_line(range.begin, true)) << " at "
+          << std::quoted(doc.get_line_info(range.begin))
+          << " found a fhicl directive starting at "
+          << std::quoted(doc.get_line_info(next_not_break))
+          << ", only tables and sequences may start on a new line.";
+    }
 
-    if (!doc.is_end(next_character)) {
-      if (directive == "nil") {
-#ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
-        std::cout << indent << "[INFO]: Found nil directive at "
-                  << doc.get_line_info(next_not_space) << std::endl;
-#endif
-        return std::make_shared<Atom>("@nil");
-      } else {
-        if (doc.get_char(doc.advance(next_character)) != ':') {
-          throw malformed_document()
-              << "[ERROR]: Expected to find double colon separator between "
-                 "@directive and the key name argument on line: "
-              << std::quoted(doc.get_line(next_character, true))
-              << " at: " << doc.advance(next_character)
-              << ", but instead found: "
-              << doc.get_char(doc.advance(next_character));
-        }
-        linedoc::doc_line_point end_of_directive =
-            doc.advance(next_character, 2);
-        next_character = doc.find_first_of(" ", end_of_directive,
-                                           end_of_directive.get_EOL());
-
-        if (doc.is_later(next_character, range.end)) {
-          next_character = range.end;
-        }
-
-        key_t directive_key = doc.substr(end_of_directive, next_character);
-        if (directive == "local") {
-#ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
-          std::cout << indent << "[INFO]: Found local directive: "
-                    << std::quoted(directive_key) << " at "
-                    << doc.get_line_info(next_not_space) << std::endl;
-#endif
-          return deep_copy_resolved_reference_value<Base>(directive_key,
-                                                          working_set, PROLOG);
-        } else if (directive == "table") {
-          throw malformed_document()
-              << "[ERROR]: Found @table directive "
-              << (build_sequence ? " in sequence " : " with key ")
-              << " but it should only be used directly within a table body to "
-                 "splice in a referenced table. Found at "
-              << std::quoted(doc.get_line(next_not_space, true)) << " from "
-              << std::quoted(doc.get_line_info(next_not_space));
-        } else if (directive == "sequence") {
-
-          if (!build_sequence) {
-            throw malformed_document()
-                << "[ERROR]: Found @sequence directive outside of a sequence. "
-                   "It can only be used within a sequence definition to splice "
-                   "in a reference sequence. Found at "
-                << std::quoted(doc.get_line(next_not_space, true)) << " from "
-                << std::quoted(doc.get_line_info(next_not_space));
-          }
-#ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
-          std::cout << indent << "[INFO]: Found sequence directive: "
-                    << std::quoted(directive_key) << " at "
-                    << doc.get_line_info(next_not_space) << std::endl;
-#endif
-          return deep_copy_resolved_reference_value<Sequence>(
-              directive_key, working_set, PROLOG);
-        } else {
-          throw malformed_document()
-              << "[ERROR]: Unknown fhicl directive: " << std::quoted(directive)
-              << ", expecting one of \"nil\", \"local\", \"table\", or "
-                 "\"sequence\". Found at "
-              << std::quoted(doc.get_line(next_not_space, true)) << " from "
-              << std::quoted(doc.get_line_info(next_not_space));
-        }
-      }
-    } else {
+    linedoc::doc_range directive_range;
+    directive_range.begin = doc.advance(next_not_break);
+    directive_range.end = doc.find_first_of(" :", directive_range.begin,
+                                            directive_range.begin.get_EOL());
+    if (doc.is_end(directive_range.end)) {
       throw malformed_document()
           << "[ERROR]: Found incomplete fhicl directive beginning: "
-          << std::quoted(doc.get_line(next_not_space, true))
+          << std::quoted(doc.get_line(next_not_break, true))
           << ", expecting one of \"nil\", \"local\", \"table\", or "
              "\"sequence\". From document: "
-          << std::quoted(doc.get_line_info(next_not_space));
+          << std::quoted(doc.get_line_info(next_not_break));
+    }
+
+    std::string directive = doc.substr(directive_range);
+
+#ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
+    std::cout << indent << "[INFO]: Found directive: " << std::quoted(directive)
+              << " between "
+              << std::quoted(doc.get_line(directive_range.begin, true))
+              << " and " << std::quoted(doc.get_line(directive_range.end, true))
+              << std::endl;
+#endif
+
+    if (directive == "nil") {
+#ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
+      std::cout << indent << "[INFO]: Found nil directive at "
+                << std::quoted(doc.get_line(next_not_break, true)) << std::endl;
+#endif
+      return std::make_shared<Atom>("@nil");
+    } else {
+      std::string dc =
+          doc.substr(directive_range.end, doc.advance(directive_range.end, 2));
+      if (dc != "::") {
+        throw malformed_document()
+            << "[ERROR]: Expected to find double colon separator between "
+               "\"@"
+            << directive << "\" and the key name argument on line: "
+            << std::quoted(doc.get_line(next_character, true))
+            << " at: " << doc.advance(next_character) << ", but instead found: "
+            << std::quoted(doc.substr(directive_range.end,
+                                      doc.advance(directive_range.end, 2)));
+      }
+      linedoc::doc_range directive_key_range;
+      directive_key_range.begin = doc.advance(directive_range.end, 2);
+      directive_key_range.end =
+          doc.find_first_of((build_sequence ? " \n," : " \n"),
+                            directive_key_range.begin, range.end);
+
+#ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
+      std::cout << indent << "[INFO]: Directive key between: "
+                << std::quoted(doc.get_line(directive_key_range.begin, true))
+                << " at "
+                << std::quoted(doc.get_line_info(directive_key_range.begin))
+                << " and "
+                << std::quoted(doc.get_line(directive_key_range.end, true))
+                << " at "
+                << std::quoted(doc.get_line_info(directive_key_range.end))
+                << " = " << std::quoted(doc.substr(directive_key_range))
+                << std::endl;
+#endif
+
+      if (doc.is_end(directive_key_range.end)) { // hit the EOL
+        directive_key_range.end = range.end;
+      }
+
+      next_character = directive_key_range.end;
+
+      key_t directive_key = doc.substr(directive_key_range);
+      if (directive == "local") {
+#ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
+        std::cout << indent << "[INFO]: Found local directive: "
+                  << std::quoted(directive_key) << " at "
+                  << std::quoted(doc.get_line(directive_range.begin, true))
+                  << std::endl;
+#endif
+        return deep_copy_resolved_reference_value<Base>(directive_key,
+                                                        working_set, PROLOG);
+      } else if (directive == "table") {
+        throw malformed_document()
+            << "[ERROR]: Found @table directive "
+            << (build_sequence ? " in sequence " : " with key ")
+            << " but it should only be used directly within a table body to "
+               "splice in a referenced table. Found at "
+            << std::quoted(doc.get_line(directive_range.begin, true))
+            << " from "
+            << std::quoted(doc.get_line_info(directive_range.begin));
+      } else if (directive == "sequence") {
+        if (!build_sequence) {
+          throw malformed_document()
+              << "[ERROR]: Found @sequence directive outside of a sequence. "
+                 "It can only be used within a sequence definition to splice "
+                 "in a reference sequence. Found at "
+              << std::quoted(doc.get_line(directive_range.begin, true))
+              << " from "
+              << std::quoted(doc.get_line_info(directive_range.begin));
+        }
+#ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
+        std::cout << indent << "[INFO]: Found sequence directive: "
+                  << std::quoted(directive_key) << " at "
+                  << doc.get_line_info(next_not_break) << std::endl;
+#endif
+        return deep_copy_resolved_reference_value<Sequence>(
+            directive_key, working_set, PROLOG);
+      } else {
+        throw malformed_document()
+            << "[ERROR]: Unknown fhicl directive: " << std::quoted(directive)
+            << ", expecting one of \"nil\", \"local\", \"table\", or "
+               "\"sequence\". Found at "
+            << std::quoted(doc.get_line(directive_range.begin, true))
+            << " from "
+            << std::quoted(doc.get_line_info(directive_range.begin));
+      }
     }
   }
   default: { // simple atom type
-    next_character =
-        doc.find_first_of(" ", next_not_space, next_not_space.get_EOL());
-    if (doc.is_later(next_character, range.end)) {
-      next_character = range.end;
+    if (next_not_break.line_no != range.begin.line_no) {
+      throw unexpected_newline()
+          << "[ERROR]: When searching for value to key defined on line: "
+          << std::quoted(doc.get_line(range.begin, true)) << " at "
+          << std::quoted(doc.get_line_info(range.begin))
+          << " found an atom starting at "
+          << std::quoted(doc.get_line_info(next_not_break))
+          << ", only tables and sequences may start on a new line.";
     }
-    std::string value = doc.substr(next_not_space, next_character);
+    linedoc::doc_line_point next_break =
+        doc.find_first_of(" \n", next_not_break, range.end);
+#ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
+    std::cout << indent << "[INFO]: Next break from: " << next_not_break
+              << " at " << std::quoted(doc.get_line(next_not_break, true))
+              << " found as " << next_break << " at "
+              << std::quoted(doc.get_line(next_break, true))
+              << "(Max: " << range.end << "). " << std::endl;
+#endif
+    if (doc.is_end(next_break)) { // If you didn't find one, never go further
+                                  // than the end of the range.
+      next_break = range.end;
+    }
+    std::string value = doc.substr(next_not_break, next_break);
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
     std::cout << indent << "[INFO]: Found KV: " << std::quoted(current_key)
               << ": " << std::quoted(value) << ". at "
               << doc.get_line_info(next_character) << std::endl;
 #endif
+    next_character = next_break;
     return std::make_shared<Atom>(value);
   }
   }
@@ -383,22 +429,30 @@ parse_fhicl_document(fhicl_doc const &doc,
                 << doc.get_line_info(read_ptr) << std::endl;
 #endif
       // move to the next line
-      read_ptr = doc.advance_line(read_ptr);
+      read_ptr =  doc.find_first_not_of(" \n", read_ptr.get_EOL());
       continue;
     }
 
-    linedoc::doc_line_point next_char =
-        doc.find_first_of(" ", read_ptr, read_ptr.get_EOL());
+    linedoc::doc_line_point next_char;
+    linedoc::doc_line_point next_break_char =
+        doc.find_first_of(" \n:", read_ptr, range.end);
     // Tokens cannot span lines
-    if (doc.is_end(next_char)) {
-      next_char = read_ptr.get_EOL();
+    if (doc.is_end(next_break_char)) {
+      throw malformed_document()
+          << "[ERROR]: Expected to find a delimited token before the end of "
+             "the allowed range, from "
+          << std::quoted(doc.get_line(read_ptr, true)) << " -- "
+          << std::quoted(doc.get_line_info(read_ptr)) << " to "
+          << std::quoted(doc.get_line(range.end, true)) << " -- "
+          << std::quoted(doc.get_line_info(range.end));
     }
 
-    std::string token = doc.substr(read_ptr, next_char);
+    std::string token = doc.substr(read_ptr, next_break_char);
+    next_char = next_break_char;
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
-    std::cout << indent << "Reading: ("
+    std::cout << indent << "Reading token: ("
               << std::quoted(doc.get_line(read_ptr, true)) << " -- "
-              << std::quoted(doc.get_line(next_char, true))
+              << std::quoted(doc.get_line(next_break_char, true))
               << ") = " << std::quoted(token) << std::endl;
 #endif
 
@@ -427,26 +481,52 @@ parse_fhicl_document(fhicl_doc const &doc,
                 << std::endl;
 #endif
     } else if (token.front() == '@') {
-      if (token.substr(0, 8) ==
-          "@table::") { // @table:: is the only directive that is allowed
+      if (token.substr(0, 6) ==
+          "@table") { // @table is the only directive that is allowed
         // to be keyless and may only appear within a table context
 
-        linedoc::doc_line_point key_start = doc.advance(read_ptr, 8);
-        linedoc::doc_line_point next_space =
-            doc.find_first_of(" ", key_start, key_start.get_EOL());
+        std::string dc =
+            doc.substr(doc.advance(read_ptr, 6), doc.advance(read_ptr, 8));
+        if (dc != "::") {
+          throw malformed_document()
+              << "[ERROR]: When reading @table directive, expected to find "
+                 "double colon directive::key delimeter, but found "
+              << std::quoted(doc.get_line(doc.advance(read_ptr, 6), true))
+              << " -- "
+              << std::quoted(doc.get_line_info(doc.advance(read_ptr, 6)));
+        }
 
-        key_t table_key = doc.substr(key_start, next_space);
+        linedoc::doc_range table_directive_key;
+        table_directive_key.begin = doc.advance(read_ptr, 8);
+        table_directive_key.end =
+            doc.find_first_of(" \n", table_directive_key.begin, range.end);
+        if (doc.is_end(table_directive_key.end)) {
+          throw malformed_document()
+              << "[ERROR]: Expected to find the table directive key token "
+                 "before the end of the allowed range, from "
+              << std::quoted(doc.get_line(table_directive_key.begin, true))
+              << " -- "
+              << std::quoted(doc.get_line_info(table_directive_key.begin))
+              << " to " << std::quoted(doc.get_line(range.end, true)) << " -- "
+              << std::quoted(doc.get_line_info(range.end));
+        }
+
+        key_t table_key = doc.substr(table_directive_key);
 
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
         std::cout << indent
                   << "[INFO]: Found table directive: " << std::quoted(table_key)
-                  << " at " << doc.get_line_info(key_start) << std::endl;
+                  << " at "
+                  << std::quoted(doc.get_line(table_directive_key.begin, true))
+                  << std::endl;
 #endif
 
         std::shared_ptr<ParameterSet> table_for_splice =
             deep_copy_resolved_reference_value<ParameterSet>(
                 table_key, *working_set, *PROLOG);
         (in_prolog ? PROLOG : ps)->splice(std::move(*table_for_splice));
+
+        next_char = table_directive_key.end;
       } else {
         throw malformed_document()
             << "[ERROR]: Found keyless fhicl directive: " << std::quoted(token)
@@ -456,7 +536,17 @@ parse_fhicl_document(fhicl_doc const &doc,
             << doc.get_line_info(read_ptr);
       }
     } else {
-      if (token.back() != ':') {
+      // Looking for key: value
+      char break_char = doc.get_char(next_break_char);
+
+      // If we stopped because of a colon, shufty pointers one character on.
+      if ((break_char == ':')) {
+        next_break_char = doc.advance(next_break_char);
+        token = doc.substr(read_ptr, next_break_char);
+        next_char = next_break_char;
+      }
+
+      if ((token.back() != ':') && (break_char != ':')) {
         throw malformed_document()
             << "[ERROR]: Expected a key declaration like \"key: \", but "
                "instead found "
@@ -464,19 +554,21 @@ parse_fhicl_document(fhicl_doc const &doc,
             << std::quoted(doc.get_line(read_ptr, true)) << " from "
             << doc.get_line_info(read_ptr);
       }
+
       key_t key = token.substr(0, token.size() - 1);
 
       std::string new_object_key =
           (current_key.size() ? (current_key + ".") : current_key) + key;
 
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
-      std::cout << indent << "Parsing next object from " << next_char << " = "
-                << std::quoted(doc.get_line(next_char, true)) << std::endl;
+      std::cout << indent << "Parsing next object from " << next_break_char
+                << " = " << std::quoted(doc.get_line(next_break_char, true))
+                << std::endl;
 #endif
 
       std::shared_ptr<Base> new_obj =
-          parse_object(doc, {next_char, linedoc::doc_line_point::end()},
-                       next_char, *working_set, *PROLOG, new_object_key);
+          parse_object(doc, {next_break_char, range.end}, next_char,
+                       *working_set, *PROLOG, new_object_key);
 
       (in_prolog ? PROLOG : ps)
           ->put_with_custom_history(key, std::move(new_obj),

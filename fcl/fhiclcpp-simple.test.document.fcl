@@ -1,0 +1,36 @@
+#include "fhiclcpp-simple.to_be_included.fcl"
+
+# Comment One
+// Comment Two
+BEGIN_PROLOG
+
+prolog_table:
+{
+  element: "example string" // Line Comment
+}
+
+END_PROLOG
+
+empty_table: {}
+
+test_sequence: [
+                1,
+                2,
+                3,
+                4
+               ]
+
+directive_table: {
+  @table::prolog_table
+  local_copy: @local::from_file
+  extend_sequence: [@sequence::test_sequence,5,6,7]
+  local_second_copy: @local::directive_table.local_copy
+}
+
+table_sequence: [
+  { a:1
+    b:2
+  },
+  {c:3}]
+
+directive_table.extend_sequence_copy: @local::directive_table.extend_sequence

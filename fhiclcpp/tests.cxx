@@ -184,4 +184,40 @@ int main() {
     assert(threw);
     std::cout << "[PASSED]: 3/3 bad newline tests" << std::endl;
   }
+  {
+    ParameterSet test_ps1;
+    ParameterSet sub1;
+    sub1.put("b", 5);
+    sub1.put("c", 6);
+    test_ps1.put("a", sub1);
+
+    bool threw = false;
+    ParameterSet ps;
+    try {
+      fhicl_doc doc = read_doc("fhiclcpp-simple.acceptable.newline.table.fcl");
+      doc.resolve_includes();
+      ps = parse_fhicl_document(doc);
+    } catch (unexpected_newline &e) {
+      threw = true;
+      std::cout << e.what() << std::endl;
+    }
+    assert(!threw);
+    operator_assert(test_ps1.id(), ==, ps.id());
+
+    threw = false;
+    ParameterSet test_ps2;
+    test_ps2.put("d", std::vector<std::string>{"bla", "bla", "bla"});
+    try {
+      fhicl_doc doc =
+          read_doc("fhiclcpp-simple.acceptable.newline.sequence.fcl");
+      doc.resolve_includes();
+      ps = parse_fhicl_document(doc);
+    } catch (unexpected_newline &e) {
+      threw = true;
+      std::cout << e.what() << std::endl;
+    }
+    assert(!threw);
+    operator_assert(test_ps2.id(), ==, ps.id());
+    std::cout << "[PASSED]: 2/2 acceptable newline tests" << std::endl;
+  }
 }

@@ -23,7 +23,6 @@ function add_to_PATH () {
 
 function add_to_FHICL_FILE_PATH () {
   for d; do
-
     d=$(cd -- "$d" && { pwd -P || pwd; }) 2>/dev/null  # canonicalize symbolic links
     if [ -z "$d" ]; then continue; fi  # skip nonexistent directory
     case ":$FHICL_FILE_PATH:" in
