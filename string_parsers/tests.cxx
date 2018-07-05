@@ -116,6 +116,9 @@ int main() {
     assert(trait_tup);
 
     std::cout << "[PASSED] 4/4 trait tests." << std::endl;
+  }{
+    std::vector<std::string> v = ParseToVect<std::string>("a,b", ",", true, true);
+    assert((v == std::vector<std::string>{"a","b"}));
   }
   {
     std::vector<double> test_v_d = str2T<std::vector<double>>("[5, 5.5, 5E5]");

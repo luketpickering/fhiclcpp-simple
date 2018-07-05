@@ -12,11 +12,14 @@
 #include <vector>
 
 namespace fhicl {
+
 namespace string_parsers {
 
 template <typename T>
-inline typename std::enable_if<!is_seq<T>::value, T>::type
-str2T(std::string const &str) {
+inline
+    typename std::enable_if<!is_seq<T>::value && std::is_arithmetic<T>::value,
+                            T>::type
+    str2T(std::string const &str) {
   if (!str.size()) {
     return T{};
   }
@@ -57,6 +60,33 @@ str2T(std::string const &str) {
       return rtn;
     }
   }
+  stream << cpy;
+  T d;
+  stream >> d;
+
+  if (stream.fail()) {
+    throw parser_fail() << "[ERROR]: Failed to parse string: "
+                        << std::quoted(str) << " as requested type.";
+  }
+
+  return d;
+}
+
+template <typename T>
+inline
+    typename std::enable_if<!is_seq<T>::value && !std::is_arithmetic<T>::value,
+                            T>::type
+    str2T(std::string const &str) {
+  if (!str.size()) {
+    return T{};
+  }
+  std::string cpy = str;
+  trim(cpy);
+  if (cpy == "@nil") {
+    return T{};
+  }
+  std::stringstream stream("");
+
   stream << cpy;
   T d;
   stream >> d;
@@ -116,8 +146,9 @@ str2T(std::string const &str);
 
 template <typename T>
 inline std::vector<T>
-ParseToVect(std::string const &inp, std::string const &delim, bool PushEmpty,
-            bool trimInput, std::map<char, char> extra_care_brackets = {}) {
+ParseToVect(std::string const &inp, std::vector<std::string> const &delims,
+            bool PushEmpty, bool trimInput,
+            std::map<char, char> extra_care_brackets = {}) {
   std::string inpCpy = inp;
   if (trimInput) {
     trim(inpCpy);
@@ -129,7 +160,15 @@ ParseToVect(std::string const &inp, std::string const &delim, bool PushEmpty,
   static const std::map<char, char> type_care_brackets =
       string_rep_delim<std::vector<T>>::brackets();
   while (!AtEnd) {
-    nextOccurence = inpCpy.find(delim, prevOccurence);
+    std::string delim;
+    nextOccurence = std::string::npos;
+    for (auto const &d : delims) {
+      size_t delim_NO = inpCpy.find(d, prevOccurence);
+      if (delim_NO < nextOccurence) {
+        delim = d;
+        nextOccurence = delim_NO;
+      }
+    }
 
     size_t bracketSearchZero = prevOccurence;
     while ((nextOccurence != std::string::npos) && type_care_brackets.size()) {
@@ -157,7 +196,14 @@ ParseToVect(std::string const &inp, std::string const &delim, bool PushEmpty,
             inpCpy, brackets.first, brackets.second, nextBracket);
         if (matching_bracket > nextOccurence) {
           bracketSearchZero = matching_bracket + 1;
-          nextOccurence = inpCpy.find(delim, bracketSearchZero);
+          nextOccurence = std::string::npos;
+          for (auto const &d : delims) {
+            size_t delim_NO = inpCpy.find(d, bracketSearchZero);
+            if (delim_NO < nextOccurence) {
+              delim = d;
+              nextOccurence = delim_NO;
+            }
+          }
           continue;
         } else if (matching_bracket < nextOccurence) {
           bracketSearchZero = matching_bracket + 1;
@@ -193,6 +239,14 @@ ParseToVect(std::string const &inp, std::string const &delim, bool PushEmpty,
     prevOccurence = nextOccurence + delim.size();
   }
   return outV;
+}
+
+template <typename T>
+inline std::vector<T>
+ParseToVect(std::string const &inp, std::string const &delim, bool PushEmpty,
+            bool trimInput, std::map<char, char> extra_care_brackets = {}) {
+  return ParseToVect<T>(inp, std::vector<std::string>{delim}, PushEmpty,
+                        trimInput, extra_care_brackets);
 }
 
 template <typename T>
