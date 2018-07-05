@@ -12,12 +12,21 @@
 
 #include <cstdint>
 #include <iomanip>
+#include <istream>
 #include <memory>
 
 namespace linedoc {
 template <typename T> struct doc_range_;
 typedef doc_range_<char> doc_range;
 } // namespace linedoc
+
+namespace fhicl {
+class ParameterSet;
+namespace string_parsers {
+template <>
+inline fhicl::ParameterSet str2T<fhicl::ParameterSet>(std::string const &);
+} // namespace string_parsers
+} // namespace fhicl
 
 namespace fhicl {
 enum class fhicl_category;
@@ -585,6 +594,15 @@ public:
   }
 };
 
+} // namespace fhicl
+
+namespace fhicl {
+namespace string_parsers {
+template <>
+inline fhicl::ParameterSet str2T<fhicl::ParameterSet>(std::string const &str) {
+  return fhicl::ParameterSet(str);
+}
+} // namespace string_parsers
 } // namespace fhicl
 
 #endif

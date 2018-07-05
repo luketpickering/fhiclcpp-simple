@@ -36,6 +36,7 @@ struct fhicl_cpp_simple_except : public std::exception {
   }
 
 NEW_EXCEPT(null_key);
+NEW_EXCEPT(parser_fail);
 NEW_EXCEPT(invalid_key);
 NEW_EXCEPT(nonexistant_key);
 NEW_EXCEPT(cant_insert);

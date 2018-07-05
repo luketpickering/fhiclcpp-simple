@@ -25,7 +25,10 @@ void Sequence::from(std::string const &str) {
   if (!string_parsers::well_bracket_wrapped(tstr, '[', ']')) {
     throw string_parsers::parser_fail()
         << "[ERROR]: Attempted to parse a non-array-like string ("
-        << std::quoted(str) << ") as a Sequence.";
+        << std::quoted(str)
+        << ") as a Sequence -- expected to find list object wrapped in square "
+           "brackets, e.g. "
+        << std::quoted("[a, b, c, d]") << ".";
 
   } else {
     tstr = tstr.substr(1, tstr.size() - 2);
@@ -51,31 +54,29 @@ void ParameterSet::from(std::string const &str) {
   if (!string_parsers::well_bracket_wrapped(tstr, '{', '}')) {
     throw string_parsers::parser_fail()
         << "[ERROR]: Attempted to parse a non-map-like string ("
-        << std::quoted(str) << ") as a ParameterSet.";
+        << std::quoted(str)
+        << ") as a ParameterSet -- expected to find dictionary object wrapped "
+           "in braces, e.g. "
+        << std::quoted("{a:b c:d}") << ".";
 
   } else {
     tstr = tstr.substr(1, tstr.size() - 2);
   }
   static const std::map<char, char> extra_brackets{
-      {'[', ']'}, {'{', '}'}, {'(', ')'}};
+      {'[', ']'}, {'{', '}'}, {'(', ')'}, {'\"', '\"'}, {'\'', '\''}};
   std::vector<std::string> k_v_list = string_parsers::ParseToVect<std::string>(
-      tstr, " ", false, true, extra_brackets);
+      tstr, std::vector<std::string>{":", " "}, false, true, extra_brackets);
   if (k_v_list.size() % 2) {
-    throw string_parsers::parser_fail()
-        << "[ERROR]: Attempted to parse a map-like string but expected an even "
-           "number of values to be parsed as key: value pairs: "
-        << std::quoted(tstr);
+    throw parser_fail()
+        << "[ERROR]: Attempted to parse a map-like string but expected an "
+           "even "
+           "number of values to be parsed as "
+        << std::quoted("key: value") << " pairs: " << std::quoted(tstr);
   }
 
   for (size_t i = 0; i < k_v_list.size(); i += 2) {
 
-    if (k_v_list[i].back() != ':') {
-      throw string_parsers::parser_fail()
-          << "[ERROR]: Attempted to parse a non-key-value-pair-like string ("
-          << std::quoted(k_v_list[i] + " " + k_v_list[i + 1])
-          << ") as a \"key: value\" pair.";
-    }
-    std::string const &k = k_v_list[i].substr(0, k_v_list[i].size() - 1);
+    std::string const &k = k_v_list[i];
     std::string const &v = k_v_list[i + 1];
 
     if (string_parsers::is_table(v)) {

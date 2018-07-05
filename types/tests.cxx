@@ -146,4 +146,16 @@ int main(int argc, char const *argv[]) {
     std::cout << b.to_indented_string() << std::endl;
     std::cout << b.history_to_string() << std::endl;
   }
+  {
+    ParameterSet c("{a:[{b:c d:e},{f:g h:i}]}");
+    ParameterSet ps_0 = c.get<ParameterSet>("a[0]");
+    assert(ps_0.get<char>("d") == 'e');
+    std::vector<ParameterSet> ps_list = c.get<std::vector<ParameterSet>>("a");
+    assert((ps_list[0].id() == ps_0.id()));
+    std::cout << ps_list[0].to_indented_string() << std::endl;
+    ParameterSet e =
+        string_parsers::str2T<ParameterSet>("{a:[{b:c d:e},{f:g h:i}]}");
+    assert((c.id() == e.id()));
+    std::cout << "[PASSED] 3/3 get ParameterSet tests" << std::endl;
+  }
 }
