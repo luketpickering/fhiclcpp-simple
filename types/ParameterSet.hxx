@@ -289,20 +289,26 @@ public:
       } else if (is_key_to_sequence(ip_it->first)) {
         ss << ip_it->first << ": [" << std::endl
            << ip_it->second->to_indented_string(indent_level +
-                                                ip_it->first.size() + 4)
+                                                // ip_it->first.size() + 4)
+                                                4)
            << std::endl;
-        for (size_t i_it = 0; i_it < (indent_level + ip_it->first.size() + 2);
-             ++i_it) {
+        // for (size_t i_it = 0; i_it < (indent_level + ip_it->first.size() +
+        // 2);
+        // for (size_t i_it = 0; i_it < (indent_level + 2); ++i_it) {
+        for (size_t i_it = 0; i_it < indent_level; ++i_it) {
           ss << " ";
         }
         ss << "]" << ((nprinted + 1 == internal_rep.size()) ? "" : "\n");
       } else {
         ss << ip_it->first << ": {" << std::endl
            << ip_it->second->to_indented_string(indent_level +
-                                                ip_it->first.size() + 4)
+                                                // ip_it->first.size() + 4)
+                                                4)
            << std::endl;
-        for (size_t i_it = 0; i_it < (indent_level + ip_it->first.size() + 2);
-             ++i_it) {
+        // for (size_t i_it = 0; i_it < (indent_level + ip_it->first.size() +
+        // 2);
+        // for (size_t i_it = 0; i_it < (indent_level + 2); ++i_it) {
+        for (size_t i_it = 0; i_it < indent_level; ++i_it) {
           ss << " ";
         }
         ss << "}" << ((nprinted + 1 == internal_rep.size()) ? "" : "\n");
