@@ -219,7 +219,7 @@ public:
     return *this;
   }
 
-  bool is_empty() const { return internal_rep.size(); }
+  bool is_empty() const { return !internal_rep.size(); }
 
   ParameterSetID id() {
     if (idCache) {
