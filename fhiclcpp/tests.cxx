@@ -146,7 +146,7 @@ int main() {
       ps = parse_fhicl_document(doc);
     } catch (unexpected_newline &e) {
       threw = true;
-      std::cout << e.what() << std::endl;
+      std::cout << "CAUGHT EXPECTED EXCEPTION -- " << e.what() << std::endl;
     }
     if (!threw) {
       std::cout << ps.to_string() << std::endl;
@@ -161,7 +161,7 @@ int main() {
 
     } catch (unexpected_newline &e) {
       threw = true;
-      std::cout << e.what() << std::endl;
+      std::cout << "CAUGHT EXPECTED EXCEPTION -- " << e.what() << std::endl;
     }
     if (!threw) {
       std::cout << ps.to_string() << std::endl;
@@ -176,7 +176,7 @@ int main() {
 
     } catch (unexpected_newline &e) {
       threw = true;
-      std::cout << e.what() << std::endl;
+      std::cout << "CAUGHT EXPECTED EXCEPTION -- " << e.what() << std::endl;
     }
     if (!threw) {
       std::cout << ps.to_string() << std::endl;
@@ -199,7 +199,7 @@ int main() {
       ps = parse_fhicl_document(doc);
     } catch (unexpected_newline &e) {
       threw = true;
-      std::cout << e.what() << std::endl;
+      std::cout << "CAUGHT EXPECTED EXCEPTION -- " << e.what() << std::endl;
     }
     assert(!threw);
     operator_assert(test_ps1.id(), ==, ps.id());
@@ -214,10 +214,27 @@ int main() {
       ps = parse_fhicl_document(doc);
     } catch (unexpected_newline &e) {
       threw = true;
-      std::cout << e.what() << std::endl;
+      std::cout << "CAUGHT EXPECTED EXCEPTION -- " << e.what() << std::endl;
     }
     assert(!threw);
     operator_assert(test_ps2.id(), ==, ps.id());
     std::cout << "[PASSED]: 2/2 acceptable newline tests" << std::endl;
+  }
+  {
+    bool threw = false;
+    ParameterSet ps;
+    try {
+      fhicl_doc doc =
+          read_doc("fhiclcpp-simple.acceptable.trailing_comma.sequence.fcl");
+      ps = parse_fhicl_document(doc);
+    } catch (...) {
+      threw = true;
+      std::cout << "[ERROR]: Threw when parsing "
+                   "fhiclcpp-simple.acceptable.trailing_comma.sequence.fcl"
+                << std::endl;
+    }
+    assert(!threw);
+    assert((ps.get<std::array<char, 3>>("myseq") ==
+            std::array<char, 3>{'a', 'b', 'c'}));
   }
 }

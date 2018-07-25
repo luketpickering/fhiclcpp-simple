@@ -1,0 +1,5 @@
+myseq: [ a,
+         b,
+         a comment
+         c
+]

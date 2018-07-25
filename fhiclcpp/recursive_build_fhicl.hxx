@@ -14,7 +14,7 @@ inline ParameterSet parse_fhicl_document(fhicl_doc const &,
                                          ParameterSet const &,
                                          linedoc::doc_range, key_t const &);
 
-// #define FHICLCPP_SIMPLE_PARSERS_DEBUG
+#define FHICLCPP_SIMPLE_PARSERS_DEBUG
 
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
 std::string indent = "";
@@ -143,6 +143,13 @@ parse_object(fhicl_doc const &doc, linedoc::doc_range range,
                 << std::quoted(doc.substr(el_range)) << std::endl;
       indent += "  ";
 #endif
+      if (!doc.substr(el_range).size()) {
+#ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
+        std::cout << indent << " -- Skipping!" << std::endl;
+        indent = indent.substr(2);
+#endif
+        continue;
+      }
       std::shared_ptr<Base> el_obj =
           parse_object(doc, el_range, last_parsed_char, working_set, PROLOG,
                        current_key, true);
@@ -153,11 +160,11 @@ parse_object(fhicl_doc const &doc, linedoc::doc_range range,
       string_parsers::trim(unused_chars);
       if (unused_chars.size()) {
         throw unexpected_newline()
-            << "[ERROR]: When parsing sequence, element " << el_it
+            << "[ERROR]: When parsing sequence, element #" << el_it
             << " started at " << el_range.begin << " on line "
             << std::quoted(doc.get_line(el_range.begin, true)) << " from "
             << std::quoted(doc.get_line_info(el_range.begin))
-            << " failed to parse: " << std::quoted(unused_chars) << " on line "
+            << ". Did not use: " << std::quoted(unused_chars) << " on line "
             << std::quoted(doc.get_line(last_parsed_char, true)) << " from "
             << std::quoted(doc.get_line_info(last_parsed_char))
             << " was there a newline in the middle of an atom element?";
@@ -429,7 +436,7 @@ parse_fhicl_document(fhicl_doc const &doc,
                 << doc.get_line_info(read_ptr) << std::endl;
 #endif
       // move to the next line
-      read_ptr =  doc.find_first_not_of(" \n", read_ptr.get_EOL());
+      read_ptr = doc.find_first_not_of(" \n", read_ptr.get_EOL());
       continue;
     }
 
@@ -547,6 +554,25 @@ parse_fhicl_document(fhicl_doc const &doc,
       }
 
       if ((token.back() != ':') && (break_char != ':')) {
+
+        linedoc::doc_line_point next_colon =
+            doc.find_first_of(":", next_break_char, range.end);
+
+      // If you found a colon and there was only whitespace before it
+        if (doc.get_char(next_colon) == ':') {
+          std::string sep = doc.substr(next_break_char, doc.advance(next_colon));
+          string_parsers::trim(sep);
+          if (!sep.size()) {
+            throw malformed_document()
+                << "[ERROR]: Expected a key declaration like \"key: \", but "
+                   "found "
+                << std::quoted(doc.substr(read_ptr, next_colon)) << " at "
+                << std::quoted(doc.get_line(next_break_char, true))
+                << ". Extra whitespace between the key and the separator "
+                   "should be trimmed.";
+          }
+        }
+
         throw malformed_document()
             << "[ERROR]: Expected a key declaration like \"key: \", but "
                "instead found "
