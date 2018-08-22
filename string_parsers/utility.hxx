@@ -90,14 +90,13 @@ inline size_t find_matching_bracket(std::string const &str,
               << close_bracket << std::endl;
     throw;
   }
-#endif
-
   if (str[begin] != open_bracket) {
     std::cout << "[ERROR]: Bad search starting position, expected to find \""
               << open_bracket << "\", but found \"" << str[begin] << "\""
               << std::endl;
     throw;
   }
+#endif
 
   size_t next_match = str.find(close_bracket, begin + 1);
   size_t next_open = str.find(open_bracket, begin + 1);
@@ -119,8 +118,7 @@ inline size_t find_matching_bracket(std::string const &str,
   }
 
   if (next_match == std::string::npos) {
-    std::cout << "[ERROR]: Failed to find matching bracket." << std::endl;
-    throw;
+    throw mismatched_brackets() << "[ERROR]: Failed to find matching bracket.";
   }
 #ifdef FHICLCPP_SIMPLE_STRING_PARSERS_UTILITY_DEBUG
   print_bracket_finder(str, begin, next_match);
