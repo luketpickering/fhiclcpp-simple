@@ -14,7 +14,7 @@ inline ParameterSet parse_fhicl_document(fhicl_doc const &,
                                          ParameterSet const &,
                                          linedoc::doc_range, key_t const &);
 
-#define FHICLCPP_SIMPLE_PARSERS_DEBUG
+// #define FHICLCPP_SIMPLE_PARSERS_DEBUG
 
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
 std::string indent = "";
