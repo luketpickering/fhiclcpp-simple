@@ -10,6 +10,8 @@
 #include "types/utility.hxx"
 
 #include "string_parsers/exception.hxx"
+#include "string_parsers/from_string.hxx"
+#include "string_parsers/to_string.hxx"
 
 #include <limits>
 #include <memory>
@@ -320,7 +322,6 @@ std::shared_ptr<Base> const &ParameterSet::get_value(key_t const &key) const {
 std::shared_ptr<Base> &ParameterSet::get_value_recursive(key_t const &key,
                                                          bool allow_extend,
                                                          bool allow_override) {
-
   if (!key.size()) {
     throw null_key();
   }
@@ -378,7 +379,6 @@ std::shared_ptr<Base> &ParameterSet::get_value_recursive(key_t const &key,
 
 std::shared_ptr<Base> const &
 ParameterSet::get_value_recursive(key_t const &key) const {
-
   if (!key.size()) {
     throw null_key();
   }

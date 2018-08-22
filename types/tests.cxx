@@ -158,4 +158,16 @@ int main(int argc, char const *argv[]) {
     assert((c.id() == e.id()));
     std::cout << "[PASSED] 3/3 get ParameterSet tests" << std::endl;
   }
+  {
+    ParameterSet b;
+    b.put("a", std::vector<double>{1, 2, 3});
+    ParameterSet c;
+    c.put("c", b);
+    std::cout << fhicl::string_parsers::T2Str<fhicl::ParameterSet>(c)
+              << std::endl;
+    ParameterSet d;
+    d.put<std::vector<ParameterSet>>("d", {{c}});
+
+    std::cout << d.to_indented_string() << std::endl;
+  }
 }

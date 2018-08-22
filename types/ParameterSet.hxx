@@ -20,11 +20,15 @@ template <typename T> struct doc_range_;
 typedef doc_range_<char> doc_range;
 } // namespace linedoc
 
+// These declarations must be here before the first instantation that would use
+// str2T/T2Str in a given translation unit
 namespace fhicl {
 class ParameterSet;
 namespace string_parsers {
 template <>
 inline fhicl::ParameterSet str2T<fhicl::ParameterSet>(std::string const &);
+template <>
+inline std::string T2Str<fhicl::ParameterSet>(fhicl::ParameterSet const &);
 } // namespace string_parsers
 } // namespace fhicl
 
@@ -607,6 +611,10 @@ namespace string_parsers {
 template <>
 inline fhicl::ParameterSet str2T<fhicl::ParameterSet>(std::string const &str) {
   return fhicl::ParameterSet(str);
+}
+template <>
+inline std::string T2Str<fhicl::ParameterSet>(fhicl::ParameterSet const &ps) {
+  return std::string("{") + ps.to_indented_string() + "}";
 }
 } // namespace string_parsers
 } // namespace fhicl
