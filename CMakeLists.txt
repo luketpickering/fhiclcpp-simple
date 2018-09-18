@@ -57,6 +57,7 @@ SET(EXTRA_LIBS)
 include(${CMAKE_SOURCE_DIR}/cmake/c++CompilerSetup.cmake)
 
 include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_INSTALL_PREFIX}/include)
 
 add_subdirectory(string_parsers)
 add_subdirectory(types)

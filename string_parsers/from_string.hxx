@@ -309,7 +309,7 @@ str2T(std::string const &str) {
 
 template <std::size_t I = 0, typename... Tp>
 inline typename std::enable_if<I == sizeof...(Tp), void>::type
-assign_tuple(std::tuple<Tp...> &t, std::vector<std::string> const &str_parse) {}
+assign_tuple(std::tuple<Tp...> &, std::vector<std::string> const &) {}
 
 template <std::size_t I = 0, typename... Tp>
     inline typename std::enable_if <

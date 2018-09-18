@@ -61,7 +61,7 @@ T2Str(typename std::enable_if<is_pair<T>::value, T>::type const &pair) {
 
 template <std::size_t I = 0, typename... Tp>
 inline typename std::enable_if<I == sizeof...(Tp), std::ostream &>::type
-write_tuple(std::ostream &os, std::tuple<Tp...> const &t) {
+write_tuple(std::ostream &os, std::tuple<Tp...> const &) {
   return os << "]";
 }
 

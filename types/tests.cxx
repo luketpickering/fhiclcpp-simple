@@ -9,7 +9,7 @@
 
 using namespace fhicl;
 
-int main(int argc, char const *argv[]) {
+int main() {
   {
     Atom a("5");
     assert((a.as<double>() == 5));
