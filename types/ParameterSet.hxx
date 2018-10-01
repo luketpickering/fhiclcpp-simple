@@ -614,7 +614,7 @@ inline fhicl::ParameterSet str2T<fhicl::ParameterSet>(std::string const &str) {
 }
 template <>
 inline std::string T2Str<fhicl::ParameterSet>(fhicl::ParameterSet const &ps) {
-  return std::string("{") + ps.to_indented_string() + "}";
+  return std::string("{") + ps.to_string() + "}";
 }
 } // namespace string_parsers
 } // namespace fhicl

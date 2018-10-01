@@ -163,8 +163,11 @@ int main() {
     b.put("a", std::vector<double>{1, 2, 3});
     ParameterSet c;
     c.put("c", b);
+    ParameterSet e;
+    e.put<std::pair<double, double>>("bla", {0.5, 1.5});
     ParameterSet d;
     d.put<std::vector<ParameterSet>>("d", {{c, b, c, b}});
+    d.put<std::vector<ParameterSet>>("e", {{e, e, e}});
 
     std::cout << d.to_indented_string() << std::endl;
   }
