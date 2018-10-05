@@ -237,4 +237,15 @@ int main() {
     assert((ps.get<std::array<char, 3>>("myseq") ==
             std::array<char, 3>{'a', 'b', 'c'}));
   }
+  {
+    bool threw = false;
+    ParameterSet ps;
+    try {
+      ps = ParameterSet("{a: b c: \"d:e\" f: g}");
+    } catch (fhicl::parser_fail) {
+      threw = true;
+    }
+    assert(!threw);
+    operator_assert(ps.get<std::string>("c"), ==, ("d:e"))
+  }
 }
