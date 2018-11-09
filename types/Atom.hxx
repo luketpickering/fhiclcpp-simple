@@ -36,12 +36,12 @@ public:
         std::string::npos) { // if you have found a period, test to see if it is
       // castable to a double, if so, return without quotes.
       try {
-        double test = str2T<double>(internal_rep);
+        (void)string_parsers::str2T<double>(internal_rep);
         return stringified;
       } catch (...) {
       }
     }
-    
+
     size_t first_punct = stringified.find_first_of(" ,\"\':;*&%$#@!~{}[]()/.");
     if (first_punct != std::string::npos) {
       std::stringstream ss("");
