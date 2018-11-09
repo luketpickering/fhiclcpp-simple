@@ -31,7 +31,7 @@ public:
       return "@nil";
     }
     std::string stringified = string_parsers::str2T<T>(internal_rep);
-    size_t first_punct = stringified.find_first_of(" ,\"\':;*&%$#@!~{}[]()");
+    size_t first_punct = stringified.find_first_of(" ,\"\':;*&%$#@!~{}[]()/.");
     if (first_punct != std::string::npos) {
       std::stringstream ss("");
       ss << std::quoted(stringified);
