@@ -31,6 +31,17 @@ public:
       return "@nil";
     }
     std::string stringified = string_parsers::str2T<T>(internal_rep);
+    size_t first_period = stringified.find_first_of(".");
+    if (first_period !=
+        std::string::npos) { // if you have found a period, test to see if it is
+      // castable to a double, if so, return without quotes.
+      try {
+        double test = str2T<double>(internal_rep);
+        return stringified;
+      } catch (...) {
+      }
+    }
+    
     size_t first_punct = stringified.find_first_of(" ,\"\':;*&%$#@!~{}[]()/.");
     if (first_punct != std::string::npos) {
       std::stringstream ss("");
@@ -47,9 +58,7 @@ public:
 
   std::string to_string() const { return as<std::string>(); }
   std::string to_compact_string() const { return as<std::string>(); }
-  std::string to_indented_string(size_t) const {
-    return as<std::string>();
-  }
+  std::string to_indented_string(size_t) const { return as<std::string>(); }
   std::string to_indented_string_with_src_info(size_t) const {
     return as<std::string>();
   }
