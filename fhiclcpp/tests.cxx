@@ -248,4 +248,21 @@ int main() {
     assert(!threw);
     operator_assert(ps.get<std::string>("c"), ==, ("d:e"))
   }
+  {
+    bool threw = false;
+    ParameterSet ps;
+    try {
+      fhicl_doc doc =
+          read_doc("fhiclcpp-simple.acceptable.comment.sequence.fcl");
+      ps = parse_fhicl_document(doc);
+    } catch (std::exception &e) {
+      threw = true;
+      std::cout << "[ERROR]: Threw when parsing "
+                   "fhiclcpp-simple.acceptable.comment.sequence.fcl"
+                << std::endl << "[WHAT]: " << e.what() << std::endl;
+    }
+    assert(!threw);
+    assert((ps.get<std::array<char, 3>>("myseq") ==
+            std::array<char, 3>{'a', 'b', 'c'}));
+  }
 }

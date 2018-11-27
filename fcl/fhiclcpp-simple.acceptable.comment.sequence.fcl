@@ -1,5 +1,16 @@
 myseq: [ a,
          b,
-         a comment
+  # A comment
          c
+]
+
+mycommentyseq: [ a,
+         b,
+  # A comment
+         c, # bla
+  # A whole bunch
+  # of
+  # comments
+         d,
+
 ]

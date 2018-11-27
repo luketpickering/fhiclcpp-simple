@@ -16,7 +16,7 @@ int main() {
     Atom b("\"bla, bla\"");
     assert((b.as<std::string>() == "\"bla, bla\""));
     Atom filename("/path/to/file");
-    assert((filename.as<std::string>() == "/path/to/file"));
+    assert((filename.as<std::string>() == "\"/path/to/file\""));
     std::cout << "[PASSED] 3/3 Atom parse tests" << std::endl;
   }
   {

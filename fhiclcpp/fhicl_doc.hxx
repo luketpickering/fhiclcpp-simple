@@ -271,6 +271,37 @@ get_list_elements(fhicl_doc const &doc, linedoc::doc_range range, bool trim) {
       string_rep_delim<std::vector<std::string>>::brackets();
 
   while (doc.is_earlier(searchZero, range.end)) {
+
+    linedoc::doc_line_point next_comment =
+        doc.find_first_of('#', searchZero, range.end);
+
+#ifdef DEBUG_GET_LIST_ELEMENTS
+    std::cout << "  Next comment character at " << next_comment << " -- "
+              << std::quoted(doc.get_line(next_comment, true)) << std::endl;
+#endif
+
+    linedoc::doc_line_point next_non_ws =
+        doc.find_first_not_of(" \t\n", searchZero, range.end);
+
+#ifdef DEBUG_GET_LIST_ELEMENTS
+    std::cout << "  Next non-ws character at " << next_non_ws << " -- "
+              << std::quoted(doc.get_line(next_non_ws, true)) << std::endl;
+#endif
+
+    if (doc.are_equivalent(next_comment, next_non_ws)) {
+      // If the next comment character is the next non-whitespace character,
+      // push pointer to the end of the line.
+      searchZero = doc.find_first_of('\n', next_comment);
+
+#ifdef DEBUG_GET_LIST_ELEMENTS
+      std::cout << "  Moved pointer to end of line comment " << searchZero
+                << " -- " << std::quoted(doc.get_line(searchZero, true))
+                << std::endl;
+#endif
+
+      continue;
+    }
+
 #ifdef DEBUG_GET_LIST_ELEMENTS
     std::cout << "  Searching for next comma after: " << searchZero << " -- "
               << std::quoted(doc.get_line(searchZero, true)) << std::endl;
