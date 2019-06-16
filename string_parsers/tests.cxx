@@ -9,6 +9,17 @@
 using namespace fhicl;
 using namespace string_parsers;
 
+#define operator_assert(L, OP, R)                                              \
+  {                                                                            \
+    if (!(L OP R)) {                                                           \
+      std::cout << "ASSERT(" << #L << " " << #OP << " " << #R ") failed."      \
+                << std::endl                                                   \
+                << "  " << #L << " = \"" << L << "\"" << std::endl             \
+                << "  " << #R << " = \"" << R << "\"" << std::endl;            \
+    }                                                                          \
+    assert((L OP R));                                                          \
+  }
+
 int main() {
   {
     std::string table_like = " {a: 5 b: 6 }  ";
@@ -41,15 +52,15 @@ int main() {
   }
   {
     int test_i = str2T<int>("5");
-    assert((test_i == 5));
+    operator_assert(test_i, ==, 5);
 
     int test_i_neg = str2T<int>("-5");
-    assert((test_i_neg == -5));
+    operator_assert(test_i_neg, ==, -5);
 
     long test_l = str2T<long>("5555555555555");
-    assert((test_l == 5555555555555l));
+    operator_assert(test_l, ==, 5555555555555l);
 
-    std::cout << "[PASSED] 3/3 int parsing tests." << std::endl;
+    std::cout << "[PASSED] 5/5 int parsing tests." << std::endl;
 
     bool test_true = str2T<bool>("true");
     assert((test_true == true));
