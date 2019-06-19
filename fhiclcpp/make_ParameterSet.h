@@ -15,6 +15,11 @@ inline ParameterSet make_ParameterSet(std::string const &filename) {
 
   return parse_fhicl_document(doc);
 }
+
+inline void make_ParameterSet(std::string const &filename, ParameterSet& pset){  
+  pset = make_ParameterSet(filename);
+}
+
 } // namespace fhicl
 
 #endif
