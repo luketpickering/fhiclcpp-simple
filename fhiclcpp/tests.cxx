@@ -259,7 +259,8 @@ int main() {
       threw = true;
       std::cout << "[ERROR]: Threw when parsing "
                    "fhiclcpp-simple.acceptable.comment.sequence.fcl"
-                << std::endl << "[WHAT]: " << e.what() << std::endl;
+                << std::endl
+                << "[WHAT]: " << e.what() << std::endl;
     }
     assert(!threw);
     assert((ps.get<std::array<char, 3>>("myseq") ==
@@ -277,10 +278,14 @@ int main() {
       threw = true;
       std::cout << "[ERROR]: Threw when parsing "
                    "fhiclcpp-simple.acceptable.sequence.table.string.fcl"
-                << std::endl << "[WHAT]: " << e.what() << std::endl;
+                << std::endl
+                << "[WHAT]: " << e.what() << std::endl;
     }
     assert(!threw);
 
     auto pslist = ps.get<std::vector<ParameterSet>>("myseq");
+    for (auto i : pslist) {
+      std::cout << i.to_string() << std::endl;
+    }
   }
 }

@@ -34,9 +34,13 @@ public:
     size_t first_period = stringified.find_first_of(".");
     if (first_period !=
         std::string::npos) { // if you have found a period, test to see if it is
-      // castable to a double, if so, return without quotes.
+      // parseable to a double, if so, return without quotes.
       try {
-        (void)string_parsers::str2T<double>(internal_rep);
+        size_t pos;
+        (void)stod(internal_rep, &pos);
+        if(pos != internal_rep.size()){
+          throw pos;
+        }
         return stringified;
       } catch (...) {
       }
