@@ -265,4 +265,22 @@ int main() {
     assert((ps.get<std::array<char, 3>>("myseq") ==
             std::array<char, 3>{'a', 'b', 'c'}));
   }
+  {
+    bool threw = false;
+
+    ParameterSet ps;
+    try {
+      fhicl_doc doc =
+          read_doc("fhiclcpp-simple.acceptable.sequence.table.string.fcl");
+      ps = parse_fhicl_document(doc);
+    } catch (std::exception &e) {
+      threw = true;
+      std::cout << "[ERROR]: Threw when parsing "
+                   "fhiclcpp-simple.acceptable.sequence.table.string.fcl"
+                << std::endl << "[WHAT]: " << e.what() << std::endl;
+    }
+    assert(!threw);
+
+    auto pslist = ps.get<std::vector<ParameterSet>>("myseq");
+  }
 }

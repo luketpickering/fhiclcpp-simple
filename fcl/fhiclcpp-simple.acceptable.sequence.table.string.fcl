@@ -1,0 +1,4 @@
+myseq: [
+   { a: "b" c: "d" },
+   { funny: "%" chars: "$" what: "@" about: ":" this: ", then" }
+]

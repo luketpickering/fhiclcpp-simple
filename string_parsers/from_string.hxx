@@ -148,7 +148,7 @@ template <typename T>
 inline std::vector<T>
 ParseToVect(std::string const &inp, std::vector<std::string> const &delims,
             bool PushEmpty, bool trimInput,
-            std::map<char, char> extra_care_brackets = {}) {
+            std::map<char, char> extra_care_brackets = {{'\"','\"'}, {'\'','\''}}) {
   std::string inpCpy = inp;
   if (trimInput) {
     trim(inpCpy);
@@ -242,9 +242,11 @@ ParseToVect(std::string const &inp, std::vector<std::string> const &delims,
 }
 
 template <typename T>
-inline std::vector<T>
-ParseToVect(std::string const &inp, std::string const &delim, bool PushEmpty,
-            bool trimInput, std::map<char, char> extra_care_brackets = {}) {
+inline std::vector<T> ParseToVect(std::string const &inp,
+                                  std::string const &delim, bool PushEmpty,
+                                  bool trimInput,
+                                  std::map<char, char> extra_care_brackets = {
+                                      {'\"', '\"'}, {'\'', '\''}}) {
   return ParseToVect<T>(inp, std::vector<std::string>{delim}, PushEmpty,
                         trimInput, extra_care_brackets);
 }
