@@ -77,6 +77,17 @@ int main() {
     std::cout << "[PASSED]: 1/1 include loop tests" << std::endl;
   }
   {
+    bool threw = false;
+    try {
+      fhicl_doc doc = read_doc("fhiclcpp-simple.multi-include.fcl");
+      doc.resolve_includes();
+    } catch (include_loop) {
+      threw = true;
+    }
+    assert(!threw);
+    std::cout << "[PASSED]: 1/1 multi-include (non-loop) tests" << std::endl;
+  }
+  {
     doc_line_point begin{0, 0};
     doc_line_point eol{0, std::string::npos};
     doc_line_point first_line_just_off_end{0, 13};

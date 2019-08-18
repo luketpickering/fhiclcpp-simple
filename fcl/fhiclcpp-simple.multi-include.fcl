@@ -1,0 +1,7 @@
+a: {
+  #include "fhiclcpp-simple.multi-include.test.fcl"
+}
+
+b: {
+  #include "fhiclcpp-simple.multi-include.test.fcl"
+}

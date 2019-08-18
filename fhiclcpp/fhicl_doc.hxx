@@ -98,6 +98,7 @@ public:
 #ifdef DEBUG_RESOLVE_INCLUDES
         std::cout << "[dri]: After insert: " << size() << std::endl;
 #endif
+      include_chain.pop_back();
       }
     }
   }
