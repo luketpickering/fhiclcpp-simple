@@ -77,6 +77,12 @@ int main() {
     std::cout << "[PASSED] 4/4 bool parsing tests." << std::endl;
   }
   {
+    operator_assert(str2T<double>("-1E-5"), ==, double(-1E-5));
+
+    operator_assert(str2T<double>("-123.456E-5"), ==, double(-123.456E-5));
+
+    operator_assert(str2T<double>("-123.456E-1"), ==, double(-123.456E-1));
+
     double test_d_int = str2T<double>("5");
     assert((test_d_int == 5));
 
@@ -92,10 +98,15 @@ int main() {
     double test_d_exp_neg = str2T<double>("5E-5");
     assert((test_d_exp_neg == 5E-5));
 
+    operator_assert(str2T<size_t>("1E5"), ==, size_t(1E5));
+    operator_assert(str2T<int>("-1E5"), ==, int(-1E5));
+    operator_assert(str2T<double>("-123.456E5"), ==, double(-123.456E5));
+    operator_assert(str2T<double>("-123.456E1"), ==, double(-123.456E1));
+
     double test_d_hex = str2T<double>("0xdeadb33f");
     assert((test_d_hex == 0xdeadb33f));
 
-    std::cout << "[PASSED] 6/6 double parsing tests." << std::endl;
+    std::cout << "[PASSED] 10/10 double parsing tests." << std::endl;
   }
   {
     std::string test_str = str2T<std::string>("bla");
@@ -127,9 +138,11 @@ int main() {
     assert(trait_tup);
 
     std::cout << "[PASSED] 4/4 trait tests." << std::endl;
-  }{
-    std::vector<std::string> v = ParseToVect<std::string>("a,b", ",", true, true);
-    assert((v == std::vector<std::string>{"a","b"}));
+  }
+  {
+    std::vector<std::string> v =
+        ParseToVect<std::string>("a,b", ",", true, true);
+    assert((v == std::vector<std::string>{"a", "b"}));
   }
   {
     std::vector<double> test_v_d = str2T<std::vector<double>>("[5, 5.5, 5E5]");

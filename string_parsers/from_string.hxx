@@ -60,6 +60,74 @@ inline
       return rtn;
     }
   }
+  // Translating exponential notation for non-floating types as stringstream
+  // baulks.
+  if (cpy.find("E-") != std::string::npos) {
+    // std::cout << "CONVERTED -: " << cpy << std::endl;
+    int exp = str2T<size_t>(cpy.substr(cpy.find("E-") + 2));
+    cpy = cpy.substr(0, cpy.find("E-"));
+
+    bool isneg = cpy.front() == '-';
+    if (isneg) {
+      cpy.erase(std::remove(cpy.begin(), cpy.end(), '-'), cpy.end());
+    }
+    // Is there already a decimal place?
+    int dec_pos = cpy.find(".");
+    if (size_t(dec_pos) == std::string::npos) {
+      dec_pos = cpy.length();
+    } else {
+      cpy.erase(std::remove(cpy.begin(), cpy.end(), '.'), cpy.end());
+    }
+    int move_dec_pos = dec_pos - exp;
+    if (move_dec_pos > 0) {
+      cpy.insert(cpy.begin() + move_dec_pos, '.');
+    } else {
+      // std::cout << "\tprefixing -: " << exp << " - " << dec_pos << " = "
+      //           << (exp - dec_pos) << " 0s" << std::endl;
+
+      for (int i = 0; i < (exp - dec_pos); ++i) {
+        cpy.insert(cpy.begin(), '0');
+      }
+      cpy.insert(cpy.begin(), '.');
+    }
+
+    if (isneg) {
+      cpy.insert(cpy.begin(), '-');
+    }
+    // std::cout << "\tTo -: " << cpy << std::endl;
+  } else if (cpy.find("E") != std::string::npos) {
+    // std::cout << "CONVERTED +: " << cpy << std::endl;
+    int exp = str2T<size_t>(cpy.substr(cpy.find("E") + 1));
+    cpy = cpy.substr(0, cpy.find("E"));
+
+    bool isneg = cpy.front() == '-';
+    if (isneg) {
+      cpy.erase(std::remove(cpy.begin(), cpy.end(), '-'), cpy.end());
+    }
+    // Is there already a decimal place?
+    int dec_pos = cpy.find(".");
+    if (size_t(dec_pos) == std::string::npos) {
+      dec_pos = cpy.length();
+    } else {
+      cpy.erase(std::remove(cpy.begin(), cpy.end(), '.'), cpy.end());
+    }
+    int move_dec_pos = dec_pos + exp;
+    if (size_t(move_dec_pos) < cpy.length()) {
+      cpy.insert(cpy.begin() + move_dec_pos, '.');
+    } else {
+      int extra = move_dec_pos - cpy.length();
+      // std::cout << "\tpostfixing +: " << extra << " 0s" << std::endl;
+      for (int i = 0; i < extra; ++i) {
+        cpy.insert(cpy.end(), '0');
+      }
+    }
+
+    if (isneg) {
+      cpy.insert(cpy.begin(), '-');
+    }
+    // std::cout << "\tTo +: " << cpy << std::endl;
+  }
+
   stream << cpy;
   T d;
   stream >> d;
@@ -145,10 +213,11 @@ inline typename std::enable_if<is_tuple<T>::value, T>::type
 str2T(std::string const &str);
 
 template <typename T>
-inline std::vector<T>
-ParseToVect(std::string const &inp, std::vector<std::string> const &delims,
-            bool PushEmpty, bool trimInput,
-            std::map<char, char> extra_care_brackets = {{'\"','\"'}, {'\'','\''}}) {
+inline std::vector<T> ParseToVect(std::string const &inp,
+                                  std::vector<std::string> const &delims,
+                                  bool PushEmpty, bool trimInput,
+                                  std::map<char, char> extra_care_brackets = {
+                                      {'\"', '\"'}, {'\'', '\''}}) {
   std::string inpCpy = inp;
   if (trimInput) {
     trim(inpCpy);
