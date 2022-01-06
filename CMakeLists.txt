@@ -1,12 +1,18 @@
-cmake_minimum_required (VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.14 FATAL_ERROR)
 
-project(fhiclcpp_simple)
+project(fhiclcpp)
+set(fhiclcpp_VERSION 0.4.0)
 
-set (fhiclcpp_simple_VERSION_MAJOR 0)
-set (fhiclcpp_simple_VERSION_MINOR 3)
-set (fhiclcpp_simple_VERSION_REVISION 0)
+if(NOT DEFINED CMAKE_INSTALL_PREFIX OR 
+    "${CMAKE_INSTALL_PREFIX}x" STREQUAL "x" OR 
+    "${CMAKE_INSTALL_PREFIX}x" STREQUAL "/usr/localx")
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}")
+endif()
 
-set (fhiclcpp_simple_VERSION_STRING "v${fhiclcpp_simple_VERSION_MAJOR}r${fhiclcpp_simple_VERSION_MINOR}p${fhiclcpp_simple_VERSION_REVISION}")
+if(NOT DEFINED CMAKE_BUILD_TYPE OR 
+    "${CMAKE_BUILD_TYPE}x" STREQUAL "x")
+  set(CMAKE_BUILD_TYPE Release)
+endif()
 
 if(NOT DEFINED DOTEST)
   SET(DOTEST FALSE)
@@ -20,44 +26,9 @@ if(DOTEST)
   enable_testing()
 endif()
 
-#Set this to TRUE to enable build debugging messages
-set(BUILD_DEBUG_MSGS TRUE)
-
-include(${CMAKE_SOURCE_DIR}/cmake/cmessage.cmake)
-
-#Changes default install path to be a subdirectory of the build dir.
-#Can set build dir at configure time with -DCMAKE_INSTALL_PREFIX=/install/path
-if(CMAKE_INSTALL_PREFIX STREQUAL "" OR CMAKE_INSTALL_PREFIX STREQUAL
-  "/usr/local")
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}")
-elseif(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}")
-endif()
-
-cmessage(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
-
-if(CMAKE_BUILD_TYPE STREQUAL "")
-  set(CMAKE_BUILD_TYPE DEBUG)
-elseif(NOT DEFINED CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE DEBUG)
-endif()
-
-################################################################################
-#                            Check Dependencies
-################################################################################
-
-include(${CMAKE_SOURCE_DIR}/cmake/linedocSetup.cmake)
-
-SET(EXTRA_CXX_FLAGS)
-SET(INCLUDE_DIRECTORIES)
-SET(EXTRA_LINK_DIRS)
-SET(EXTRA_LIBS)
-
-################################## COMPILER ####################################
-include(${CMAKE_SOURCE_DIR}/cmake/c++CompilerSetup.cmake)
+include (${CMAKE_SOURCE_DIR}/cmake/fhiclcppConfig.cmake)
 
 include_directories(${CMAKE_SOURCE_DIR})
-include_directories(${CMAKE_INSTALL_PREFIX}/include)
 
 add_subdirectory(string_parsers)
 add_subdirectory(types)
@@ -69,7 +40,14 @@ install(FILES
   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${SETUPFILENAME}" DESTINATION
   ${CMAKE_INSTALL_PREFIX})
 
+install(FILES
+  ${CMAKE_SOURCE_DIR}/cmake/fhiclcppConfig.cmake DESTINATION
+  ${CMAKE_INSTALL_PREFIX}/cmake)
+
+FILE(WRITE ${CMAKE_INSTALL_PREFIX}/cmake/fhiclcppVersion.cmake 
+  "SET(fhiclcpp_VERSION ${fhiclcpp_VERSION})\n" )
+
 if(DOTEST)
   file(GLOB EXAMPLE_FCL fcl/*.fcl)
-  install(PROGRAMS ${EXAMPLE_FCL} DESTINATION ${CMAKE_INSTALL_PREFIX}/fcl)
+  install(FILES ${EXAMPLE_FCL} DESTINATION ${CMAKE_INSTALL_PREFIX}/fcl)
 endif()

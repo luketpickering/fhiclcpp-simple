@@ -32,8 +32,10 @@ function add_to_FHICL_FILE_PATH () {
   done
 }
 
-add_to_PATH "@CMAKE_INSTALL_PREFIX@/bin"
+export fhiclcpp_ROOT="@CMAKE_INSTALL_PREFIX@"
 
-if [ "@DOTEST@" ]; then
-  add_to_FHICL_FILE_PATH "@CMAKE_INSTALL_PREFIX@/fcl"
+add_to_PATH "${fhiclcpp_ROOT}/bin"
+
+if [ "@DOTEST@" == "TRUE" ] || [ "@DOTEST@" == "ON" ] || [ "@DOTEST@" == "1" ]; then
+  add_to_FHICL_FILE_PATH "${fhiclcpp_ROOT}/fcl"
 fi

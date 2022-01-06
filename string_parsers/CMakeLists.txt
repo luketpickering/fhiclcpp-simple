@@ -1,6 +1,6 @@
 if(DOTEST)
   add_executable(string_parsers_tests tests.cxx)
-  add_dependencies(string_parsers_tests linedoc)
+  target_link_libraries(string_parsers_tests linedoc::Headers)
   install(TARGETS string_parsers_tests DESTINATION test)
 
   add_test(NAME string_parsers_tests COMMAND string_parsers_tests)

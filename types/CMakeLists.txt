@@ -1,6 +1,6 @@
 if(DOTEST)
   add_executable(types_tests tests.cxx)
-  add_dependencies(types_tests linedoc)
+  target_link_libraries(types_tests linedoc::Headers)
   install(TARGETS types_tests DESTINATION test)
 
   add_test(NAME types_tests COMMAND types_tests)
