@@ -26,6 +26,10 @@ if(DOTEST)
   enable_testing()
 endif()
 
+if(NOT DEFINED CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD LESS 14)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
 include (${CMAKE_SOURCE_DIR}/cmake/fhiclcppConfig.cmake)
 
 include_directories(${CMAKE_SOURCE_DIR})
