@@ -49,19 +49,7 @@ if(NOT COMMAND cmessage)
   endfunction()
 endif()
 
-include(CMakeFindDependencyMacro)
-
-if(NOT COMMAND find_package_or_dependency)
-  macro(find_package_or_dependency ARGS)
-    if("${CMAKE_PROJECT_NAME} " STREQUAL "fhiclcpp ")
-      find_package(${ARGS})
-    else()
-      find_dependency(${ARGS})
-    endif()
-  endmacro()
-endif()
-
-find_package_or_dependency(linedoc REQUIRED)
+find_package(linedoc REQUIRED)
 
 get_target_property(linedoc_Header_INC linedoc::Headers INTERFACE_INCLUDE_DIRECTORIES)
 

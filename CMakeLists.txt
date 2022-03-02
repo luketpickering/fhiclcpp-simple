@@ -18,10 +18,6 @@ if(NOT DEFINED DOTEST)
   SET(DOTEST FALSE)
 endif()
 
-if(NOT DEFINED SETUPFILENAME)
-  SET(SETUPFILENAME "setup.sh")
-endif()
-
 if(DOTEST)
   enable_testing()
 endif()
@@ -39,9 +35,9 @@ add_subdirectory(types)
 add_subdirectory(fhiclcpp)
 
 configure_file(cmake/setup.sh.in
-"${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${SETUPFILENAME}" @ONLY)
+"${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" @ONLY)
 install(FILES
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${SETUPFILENAME}" DESTINATION
+  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" DESTINATION
   ${CMAKE_INSTALL_PREFIX})
 
 install(FILES
