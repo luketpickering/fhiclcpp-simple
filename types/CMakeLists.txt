@@ -1,6 +1,6 @@
 if(DOTEST)
   add_executable(types_tests tests.cxx)
-  target_link_libraries(types_tests linedoc::Headers)
+  target_link_libraries(types_tests fhiclcpp_includes linedoc::includes)
   install(TARGETS types_tests DESTINATION test)
 
   add_test(NAME types_tests COMMAND types_tests)

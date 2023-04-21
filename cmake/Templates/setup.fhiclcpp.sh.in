@@ -1,3 +1,31 @@
+if [ ! -z ${BASH_VERSINFO} ] && (( BASH_VERSINFO[0] < 2 )); then
+  echo "[ERROR]: You must source this setup script (not run it in a sub-shell). Use like $ source setup.sh"
+  exit 1
+fi
+
+if ! type abspath &> /dev/null; then
+
+#Adapted from
+# https://superuser.com/questions/205127/how-to-retrieve-the-absolute-path-of-an-arbitrary-file-from-the-os-x/218684#218684
+function abspath() { 
+  ABS_PATH_OPWD=$(pwd)
+  if [ ! -e "${1}" ]; then
+    :
+  elif [ -d "$1" ]; then 
+    cd "$1"; pwd; 
+  else 
+    cd $(dirname \"$1\"); 
+    cur_dir=$(pwd); 
+    if [ "$cur_dir" = "/" ]; then 
+      echo "$cur_dir$(basename \"$1\")"; 
+    else echo "$cur_dir/$(basename \"$1\")"; 
+    fi; 
+  fi; 
+  cd ${ABS_PATH_OPWD}
+}
+
+fi
+
 if ! type add_to_PATH &> /dev/null; then
 
 ### Adapted from https://unix.stackexchange.com/questions/4965/keep-duplicates-out-of-path-on-source
@@ -46,7 +74,6 @@ function add_to_LD_LIBRARY_PATH () {
 }
 
 fi
-
 if ! type add_to_FHICL_FILE_PATH &> /dev/null; then
 
 function add_to_FHICL_FILE_PATH () {
@@ -63,15 +90,10 @@ function add_to_FHICL_FILE_PATH () {
 
 fi
 
-if [ -z "${linedoc_ROOT}" ]; then
-  echo "[INFO]: Setting up linedoc from: \"@linedoc_CMAKE_DIR@/..\""
-  source @linedoc_CMAKE_DIR@/../setup.sh
-fi
-
 export fhiclcpp_ROOT="@CMAKE_INSTALL_PREFIX@"
 
 add_to_PATH "${fhiclcpp_ROOT}/bin"
 
-if [ "@DOTEST@" == "TRUE" ] || [ "@DOTEST@" == "ON" ] || [ "@DOTEST@" == "1" ]; then
+if [ "@DOTEST_CONFIG@" == "TRUE" ]; then
   add_to_FHICL_FILE_PATH "${fhiclcpp_ROOT}/fcl"
 fi
