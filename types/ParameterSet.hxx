@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <istream>
 #include <memory>
+#include <limits>
 
 namespace linedoc {
 template <typename T> struct doc_range_;

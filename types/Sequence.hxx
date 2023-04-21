@@ -7,6 +7,7 @@
 #include "string_parsers/traits.hxx"
 
 #include <memory>
+#include <limits>
 
 namespace fhicl {
 class ParameterSet;
