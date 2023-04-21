@@ -25,12 +25,13 @@ if(NOT DEFINED CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD LESS 14)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
-include (${CMAKE_SOURCE_DIR}/cmake/Modules/fhiclcppDependencies.cmake)
+include (${PROJECT_SOURCE_DIR}/cmake/Modules/fhiclcppDependencies.cmake)
 
 add_library(fhiclcpp_includes INTERFACE)
-target_include_directories(fhiclcpp_includes INTERFACE 
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+target_include_directories(fhiclcpp_includes INTERFACE
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>)
+target_link_libraries(fhiclcpp_includes INTERFACE linedoc::includes)
 set_target_properties(fhiclcpp_includes PROPERTIES EXPORT_NAME fhiclcpp::includes)
 
 install(TARGETS fhiclcpp_includes EXPORT fhiclcppTargets)
