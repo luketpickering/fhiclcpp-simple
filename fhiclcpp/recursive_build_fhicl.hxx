@@ -1,5 +1,4 @@
-#ifndef FHICLCPP_SIMPLE_FHICLCPP_RECURSIVE_BUILD_FHICL_H_SEEN
-#define FHICLCPP_SIMPLE_FHICLCPP_RECURSIVE_BUILD_FHICL_H_SEEN
+#pragma once
 
 #include "fhiclcpp/ParameterSet.h"
 
@@ -622,5 +621,3 @@ parse_fhicl_document(fhicl_doc const &doc,
   return (*ps);
 }
 } // namespace fhicl
-
-#endif

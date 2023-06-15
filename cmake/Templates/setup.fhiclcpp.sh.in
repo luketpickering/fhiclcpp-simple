@@ -91,6 +91,7 @@ function add_to_FHICL_FILE_PATH () {
 fi
 
 export fhiclcpp_ROOT="@CMAKE_INSTALL_PREFIX@"
+export fhiclcpp_VERSION="@PROJECT_VERSION@"
 
 add_to_PATH "${fhiclcpp_ROOT}/bin"
 

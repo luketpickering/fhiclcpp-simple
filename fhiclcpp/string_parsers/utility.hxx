@@ -1,7 +1,6 @@
-#ifndef FHICLCPP_SIMPLE_STRING_PARSERS_UTILITY_HXX_SEEN
-#define FHICLCPP_SIMPLE_STRING_PARSERS_UTILITY_HXX_SEEN
+#pragma once
 
-#include "string_parsers/exception.hxx"
+#include "fhiclcpp/string_parsers/exception.hxx"
 
 #include <algorithm>
 #include <iomanip>
@@ -138,5 +137,3 @@ inline std::string ensure_trailing_slash(std::string const &str) {
 
 } // namespace string_parsers
 } // namespace fhicl
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef FHICLCPP_SIMPLE_TYPES_BASE_HXX_SEEN
-#define FHICLCPP_SIMPLE_TYPES_BASE_HXX_SEEN
+#pragma once
 
 #include <memory>
 #include <string>
@@ -28,5 +27,3 @@ public:
   to_indented_string_with_src_info(size_t indent_level) const = 0;
 };
 } // namespace fhicl
-
-#endif

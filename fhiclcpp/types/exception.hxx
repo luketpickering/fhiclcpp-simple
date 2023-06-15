@@ -1,5 +1,4 @@
-#ifndef FHICLCPP_SIMPLE_TYPES_EXCEPTION_HXX_SEEN
-#define FHICLCPP_SIMPLE_TYPES_EXCEPTION_HXX_SEEN
+#pragma once
 
 #include <sstream>
 #include <stdexcept>
@@ -46,5 +45,3 @@ NEW_EXCEPT(bizare_error);
 #undef NEW_EXCEPT
 
 } // namespace fhicl
-
-#endif

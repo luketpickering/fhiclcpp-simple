@@ -15,4 +15,4 @@ install(FILES
   Sequence.hxx
   traits.hxx
   utility.hxx
-  DESTINATION include/types)
+  DESTINATION include/fhiclcpp/types)

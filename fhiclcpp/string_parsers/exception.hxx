@@ -1,5 +1,4 @@
-#ifndef FHICLCPP_SIMPLE_STRING_PARSERS_EXCEPTION_HXX_SEEN
-#define FHICLCPP_SIMPLE_STRING_PARSERS_EXCEPTION_HXX_SEEN
+#pragma once
 
 #include <sstream>
 #include <stdexcept>
@@ -44,5 +43,3 @@ NEW_EXCEPT(wrong_number_of_elements);
 
 } // namespace string_parsers
 } // namespace fhicl
-
-#endif

@@ -1,7 +1,6 @@
-#ifndef FHICLCPP_SIMPLE_STRING_PARSERS_TO_STRING_HXX_SEEN
-#define FHICLCPP_SIMPLE_STRING_PARSERS_TO_STRING_HXX_SEEN
+#pragma once
 
-#include "string_parsers/traits.hxx"
+#include "fhiclcpp/string_parsers/traits.hxx"
 
 #include <iomanip>
 #include <iostream>
@@ -90,5 +89,3 @@ T2Str(typename std::enable_if<is_tuple<T>::value, T>::type const &t) {
 
 } // namespace string_parsers
 } // namespace fhicl
-
-#endif

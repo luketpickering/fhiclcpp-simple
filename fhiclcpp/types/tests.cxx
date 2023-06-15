@@ -1,11 +1,11 @@
 #include <cassert>
 #include <iostream>
 
-#include "types/Atom.hxx"
-#include "types/ParameterSet.hxx"
-#include "types/Sequence.hxx"
+#include "fhiclcpp/types/Atom.hxx"
+#include "fhiclcpp/types/ParameterSet.hxx"
+#include "fhiclcpp/types/Sequence.hxx"
 
-#include "types/CompositeTypesSharedImpl.hxx"
+#include "fhiclcpp/types/CompositeTypesSharedImpl.hxx"
 
 using namespace fhicl;
 

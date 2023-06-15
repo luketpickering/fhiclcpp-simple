@@ -1,10 +1,9 @@
-#ifndef FHICLCPP_SIMPLE_FHICLCPP_FHICL_DOC_H_SEEN
-#define FHICLCPP_SIMPLE_FHICLCPP_FHICL_DOC_H_SEEN
+#pragma once
 
 #include "fhiclcpp/exception.hxx"
 
-#include "string_parsers/traits.hxx"
-#include "string_parsers/utility.hxx"
+#include "fhiclcpp/string_parsers/traits.hxx"
+#include "fhiclcpp/string_parsers/utility.hxx"
 
 #include "linedoc/doc.hxx"
 
@@ -615,4 +614,3 @@ inline fhicl_doc read_doc(std::string const &filename) {
 }
 
 } // namespace fhicl
-#endif

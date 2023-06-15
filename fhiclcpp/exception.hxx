@@ -1,7 +1,6 @@
-#ifndef FHICLCPP_SIMPLE_FHICLCPP_EXCEPTION_HXX_SEEN
-#define FHICLCPP_SIMPLE_FHICLCPP_EXCEPTION_HXX_SEEN
+#pragma once
 
-#include "types/exception.hxx"
+#include "fhiclcpp/types/exception.hxx"
 
 #include <sstream>
 #include <stdexcept>
@@ -38,5 +37,3 @@ struct unexpected_newline : public malformed_document {
 };
 
 } // namespace fhicl
-
-#endif

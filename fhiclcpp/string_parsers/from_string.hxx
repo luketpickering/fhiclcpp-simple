@@ -1,8 +1,7 @@
-#ifndef FHICLCPP_SIMPLE_STRING_PARSERS_FROM_STRING_HXX_SEEN
-#define FHICLCPP_SIMPLE_STRING_PARSERS_FROM_STRING_HXX_SEEN
+#pragma once
 
-#include "string_parsers/traits.hxx"
-#include "string_parsers/utility.hxx"
+#include "fhiclcpp/string_parsers/traits.hxx"
+#include "fhiclcpp/string_parsers/utility.hxx"
 
 #include <iomanip>
 #include <iostream>
@@ -412,4 +411,3 @@ str2T(std::string const &str) {
 
 } // namespace string_parsers
 } // namespace fhicl
-#endif

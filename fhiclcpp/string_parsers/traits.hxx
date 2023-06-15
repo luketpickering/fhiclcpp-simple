@@ -1,5 +1,4 @@
-#ifndef FHICLCPP_SIMPLE_STRING_PARSERS_TRAITS_HXX_SEEN
-#define FHICLCPP_SIMPLE_STRING_PARSERS_TRAITS_HXX_SEEN
+#pragma once
 
 #include <array>
 #include <iostream>
@@ -104,5 +103,3 @@ template <typename... Ts> struct string_rep_delim<std::tuple<Ts...>> {
   }
 };
 } // namespace fhicl
-
-#endif

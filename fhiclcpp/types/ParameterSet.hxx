@@ -1,14 +1,13 @@
-#ifndef FHICLCPP_SIMPLE_TYPES_PARAMETER_SET_HXX_SEEN
-#define FHICLCPP_SIMPLE_TYPES_PARAMETER_SET_HXX_SEEN
+#pragma once
 
-#include "types/Atom.hxx"
-#include "types/Base.hxx"
-#include "types/exception.hxx"
+#include "fhiclcpp/types/Atom.hxx"
+#include "fhiclcpp/types/Base.hxx"
+#include "fhiclcpp/types/exception.hxx"
 
-#include "string_parsers/from_string.hxx"
-#include "string_parsers/md5.hxx"
-#include "string_parsers/to_string.hxx"
-#include "string_parsers/traits.hxx"
+#include "fhiclcpp/string_parsers/from_string.hxx"
+#include "fhiclcpp/string_parsers/md5.hxx"
+#include "fhiclcpp/string_parsers/to_string.hxx"
+#include "fhiclcpp/string_parsers/traits.hxx"
 
 #include <cstdint>
 #include <iomanip>
@@ -619,5 +618,3 @@ inline std::string T2Str<fhicl::ParameterSet>(fhicl::ParameterSet const &ps) {
 }
 } // namespace string_parsers
 } // namespace fhicl
-
-#endif

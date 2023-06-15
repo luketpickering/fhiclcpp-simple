@@ -1,17 +1,16 @@
-#ifndef FHICLCPP_SIMPLE_TYPES_COMPOSITE_TYPES_SHARED_IMPL_HXX_SEEN
-#define FHICLCPP_SIMPLE_TYPES_COMPOSITE_TYPES_SHARED_IMPL_HXX_SEEN
+#pragma once
 
-#include "types/Atom.hxx"
-#include "types/Base.hxx"
-#include "types/ParameterSet.hxx"
-#include "types/Sequence.hxx"
-#include "types/exception.hxx"
-#include "types/traits.hxx"
-#include "types/utility.hxx"
+#include "fhiclcpp/types/Atom.hxx"
+#include "fhiclcpp/types/Base.hxx"
+#include "fhiclcpp/types/ParameterSet.hxx"
+#include "fhiclcpp/types/Sequence.hxx"
+#include "fhiclcpp/types/exception.hxx"
+#include "fhiclcpp/types/traits.hxx"
+#include "fhiclcpp/types/utility.hxx"
 
-#include "string_parsers/exception.hxx"
-#include "string_parsers/from_string.hxx"
-#include "string_parsers/to_string.hxx"
+#include "fhiclcpp/string_parsers/exception.hxx"
+#include "fhiclcpp/string_parsers/from_string.hxx"
+#include "fhiclcpp/string_parsers/to_string.hxx"
 
 #include <limits>
 #include <memory>
@@ -428,5 +427,3 @@ ParameterSet::get_value_recursive(key_t const &key) const {
 }
 
 } // namespace fhicl
-
-#endif

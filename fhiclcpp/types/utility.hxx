@@ -1,10 +1,9 @@
-#ifndef FHICLCPP_SIMPLE_TYPES_UTILITY_HXX_SEEN
-#define FHICLCPP_SIMPLE_TYPES_UTILITY_HXX_SEEN
+#pragma once
 
-#include "types/ParameterSet.hxx"
-#include "types/Sequence.hxx"
-#include "types/exception.hxx"
-#include "types/traits.hxx"
+#include "fhiclcpp/types/ParameterSet.hxx"
+#include "fhiclcpp/types/Sequence.hxx"
+#include "fhiclcpp/types/exception.hxx"
+#include "fhiclcpp/types/traits.hxx"
 
 #include <memory>
 #include <sstream>
@@ -90,5 +89,3 @@ deep_copy_value(std::shared_ptr<Base> const original) {
 }
 
 } // namespace fhicl
-
-#endif

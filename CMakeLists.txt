@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.14 FATAL_ERROR)
 
-project(fhiclcpp VERSION 0.5 LANGUAGES CXX)
+project(fhiclcpp VERSION 23.06 LANGUAGES CXX)
 
 if(NOT DEFINED CMAKE_INSTALL_PREFIX OR 
     "${CMAKE_INSTALL_PREFIX}x" STREQUAL "x" OR 
@@ -38,8 +38,6 @@ install(TARGETS fhiclcpp_includes EXPORT fhiclcppTargets)
 
 add_library(fhiclcpp::includes ALIAS fhiclcpp_includes)
 
-add_subdirectory(string_parsers)
-add_subdirectory(types)
 add_subdirectory(fhiclcpp)
 
 include(CMakePackageConfigHelpers)

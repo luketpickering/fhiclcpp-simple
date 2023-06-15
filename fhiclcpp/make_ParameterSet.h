@@ -1,8 +1,7 @@
-#ifndef FHICLCPP_SIMPLE_FHICLCPP_MAKE_PARAMETER_SET_H_SEEN
-#define FHICLCPP_SIMPLE_FHICLCPP_MAKE_PARAMETER_SET_H_SEEN
+#pragma once
 
 #include "fhiclcpp/ParameterSet.h"
-#include "recursive_build_fhicl.hxx"
+#include "fhiclcpp/recursive_build_fhicl.hxx"
 
 namespace fhicl {
 
@@ -21,5 +20,3 @@ inline void make_ParameterSet(std::string const &filename, ParameterSet& pset){
 }
 
 } // namespace fhicl
-
-#endif

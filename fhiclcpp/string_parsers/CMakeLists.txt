@@ -13,4 +13,4 @@ install(FILES
   to_string.hxx
   traits.hxx
   utility.hxx
-  DESTINATION include/string_parsers)
+  DESTINATION include/fhiclcpp/string_parsers)

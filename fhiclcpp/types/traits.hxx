@@ -1,11 +1,10 @@
-#ifndef FHICLCPP_SIMPLE_TYPES_TRAITS_HXX_SEEN
-#define FHICLCPP_SIMPLE_TYPES_TRAITS_HXX_SEEN
+#pragma once
 
-#include "types/Atom.hxx"
-#include "types/ParameterSet.hxx"
-#include "types/Sequence.hxx"
+#include "fhiclcpp/types/Atom.hxx"
+#include "fhiclcpp/types/ParameterSet.hxx"
+#include "fhiclcpp/types/Sequence.hxx"
 
-#include "string_parsers/traits.hxx"
+#include "fhiclcpp/string_parsers/traits.hxx"
 
 namespace fhicl {
 
@@ -71,5 +70,3 @@ template <> struct fhicl_type<fhicl::Sequence> {
 };
 
 } // namespace fhicl
-
-#endif

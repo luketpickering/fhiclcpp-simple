@@ -6,7 +6,7 @@ set(fhiclcpp_VERSION @PROJECT_VERSION@)
 
 include(${CMAKE_CURRENT_LIST_DIR}/fhiclcppTargets.cmake)
 if(NOT TARGET fhiclcpp::includes)
-  cmessage(WARNING "Expected to find target fhiclcpp::includes in ${CMAKE_CURRENT_LIST_DIR}/fhiclcppTargets.cmake")
+  message(WARNING "Expected to find target fhiclcpp::includes in ${CMAKE_CURRENT_LIST_DIR}/fhiclcppTargets.cmake")
   set(fhiclcpp_FOUND FALSE)
   return()
 endif()
@@ -14,7 +14,7 @@ endif()
 get_filename_component(fhiclcpp_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 
 find_path(fhiclcpp_INCLUDE_DIR
-  NAMES fhiclcpp/doc.hxx
+  NAMES fhiclcpp/fhicl_doc.hxx
   PATHS ${fhiclcpp_CMAKE_DIR}/../../../include
 )
 

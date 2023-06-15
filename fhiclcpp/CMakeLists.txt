@@ -1,3 +1,6 @@
+add_subdirectory(string_parsers)
+add_subdirectory(types)
+
 add_executable(fhicl-dump fhicl-dump.cxx)
 target_link_libraries(fhicl-dump fhiclcpp_includes linedoc::includes)
 install(TARGETS fhicl-dump DESTINATION bin)

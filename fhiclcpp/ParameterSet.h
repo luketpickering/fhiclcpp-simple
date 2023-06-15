@@ -1,9 +1,6 @@
-#ifndef FHICLCPP_SIMPLE_FHICLCPP_PARAMETER_SET_H_SEEN
-#define FHICLCPP_SIMPLE_FHICLCPP_PARAMETER_SET_H_SEEN
+#pragma once
 
-#include "types/ParameterSet.hxx"
-#include "types/Sequence.hxx"
+#include "fhiclcpp/types/ParameterSet.hxx"
+#include "fhiclcpp/types/Sequence.hxx"
 
-#include "types/CompositeTypesSharedImpl.hxx"
-
-#endif
+#include "fhiclcpp/types/CompositeTypesSharedImpl.hxx"

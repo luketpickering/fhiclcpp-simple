@@ -1,10 +1,9 @@
-#ifndef FHICLCPP_SIMPLE_TYPES_ATOM_HXX_SEEN
-#define FHICLCPP_SIMPLE_TYPES_ATOM_HXX_SEEN
+#pragma once
 
-#include "types/Base.hxx"
+#include "fhiclcpp/types/Base.hxx"
 
-#include "string_parsers/from_string.hxx"
-#include "string_parsers/traits.hxx"
+#include "fhiclcpp/string_parsers/from_string.hxx"
+#include "fhiclcpp/string_parsers/traits.hxx"
 
 #include <iomanip>
 #include <sstream>
@@ -70,5 +69,3 @@ public:
   bool is_nil() const { return internal_rep == "@nil"; }
 };
 } // namespace fhicl
-
-#endif
