@@ -6,7 +6,7 @@
 #include "string_parsers/to_string.hxx"
 #include "string_parsers/utility.hxx"
 
-using namespace fhicl;
+using namespace fhiclsimple;
 using namespace string_parsers;
 
 #define operator_assert(L, OP, R)                                              \

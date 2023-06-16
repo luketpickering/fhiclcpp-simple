@@ -5,7 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace fhicl {
+namespace fhiclsimple {
 
 #define NEW_EXCEPT(EXCEPT_NAME)                                                \
   struct EXCEPT_NAME : public fhicl_cpp_simple_except {                        \
@@ -36,4 +36,4 @@ struct unexpected_newline : public malformed_document {
   }
 };
 
-} // namespace fhicl
+} // namespace fhiclsimple

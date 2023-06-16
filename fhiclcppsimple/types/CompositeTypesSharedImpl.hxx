@@ -15,7 +15,7 @@
 #include <limits>
 #include <memory>
 
-namespace fhicl {
+namespace fhiclsimple {
 
 void Sequence::from(std::string const &str) {
   if (!str.size()) {
@@ -426,4 +426,4 @@ ParameterSet::get_value_recursive(key_t const &key) const {
 #endif
 }
 
-} // namespace fhicl
+} // namespace fhiclsimple

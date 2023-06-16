@@ -3,7 +3,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace fhicl {
+namespace fhiclsimple {
 namespace string_parsers {
 
 struct fhicl_cpp_simple_except : public std::exception {
@@ -42,4 +42,4 @@ NEW_EXCEPT(wrong_number_of_elements);
 #undef NEW_EXCEPT
 
 } // namespace string_parsers
-} // namespace fhicl
+} // namespace fhiclsimple

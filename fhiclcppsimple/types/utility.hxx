@@ -9,7 +9,7 @@
 #include <sstream>
 #include <string>
 
-namespace fhicl {
+namespace fhiclsimple {
 
 fhicl_category inline get_fhicl_category(std::shared_ptr<Base> const el) {
   if (!el) {
@@ -88,4 +88,4 @@ deep_copy_value(std::shared_ptr<Base> const original) {
          "backtrace to the maintainer.";
 }
 
-} // namespace fhicl
+} // namespace fhiclsimple

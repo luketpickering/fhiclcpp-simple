@@ -6,7 +6,7 @@
 
 #include <cstdio>
 
-namespace fhicl {
+namespace fhiclsimple {
 
 inline ParameterSet parse_fhicl_document(fhicl_doc const &,
                                          ParameterSet const &,
@@ -620,4 +620,4 @@ parse_fhicl_document(fhicl_doc const &doc,
 
   return (*ps);
 }
-} // namespace fhicl
+} // namespace fhiclsimple

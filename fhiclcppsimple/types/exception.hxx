@@ -3,7 +3,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace fhicl {
+namespace fhiclsimple {
 
 struct fhicl_cpp_simple_except : public std::exception {
   std::stringstream msgstrm;
@@ -44,4 +44,4 @@ NEW_EXCEPT(bizare_error);
 
 #undef NEW_EXCEPT
 
-} // namespace fhicl
+} // namespace fhiclsimple

@@ -8,7 +8,7 @@
 #include <memory>
 #include <limits>
 
-namespace fhicl {
+namespace fhiclsimple {
 class ParameterSet;
 // forward declaration for functions found in utility.hxx
 std::shared_ptr<Base> deep_copy_value(std::shared_ptr<Base> const original);
@@ -198,4 +198,4 @@ public:
     }
   }
 };
-} // namespace fhicl
+} // namespace fhiclsimple

@@ -4,7 +4,7 @@
 #include "fhiclcppsimple/exception.hxx"
 #include "fhiclcppsimple/make_ParameterSet.h"
 
-using namespace fhicl;
+using namespace fhiclsimple;
 using namespace linedoc;
 
 #define operator_assert(L, OP, R)                                              \
@@ -253,7 +253,7 @@ int main() {
     ParameterSet ps;
     try {
       ps = ParameterSet("{a: b c: \"d:e\" f: g}");
-    } catch (fhicl::parser_fail) {
+    } catch (fhiclsimple::parser_fail) {
       threw = true;
     }
     assert(!threw);

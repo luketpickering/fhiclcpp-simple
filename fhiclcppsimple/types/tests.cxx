@@ -7,7 +7,7 @@
 
 #include "fhiclcppsimple/types/CompositeTypesSharedImpl.hxx"
 
-using namespace fhicl;
+using namespace fhiclsimple;
 
 int main() {
   {

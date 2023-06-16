@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <sstream>
 
-namespace fhicl {
+namespace fhiclsimple {
 class Atom : public Base {
   void from(std::string const &str) { internal_rep = str; }
   void from(std::string &&str) { internal_rep = std::move(str); }
@@ -68,4 +68,4 @@ public:
 
   bool is_nil() const { return internal_rep == "@nil"; }
 };
-} // namespace fhicl
+} // namespace fhiclsimple

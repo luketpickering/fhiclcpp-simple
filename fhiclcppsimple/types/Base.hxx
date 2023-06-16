@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-namespace fhicl {
+namespace fhiclsimple {
 class Base {
 protected:
   static std::shared_ptr<Base> &empty() {
@@ -26,4 +26,4 @@ public:
   virtual std::string
   to_indented_string_with_src_info(size_t indent_level) const = 0;
 };
-} // namespace fhicl
+} // namespace fhiclsimple

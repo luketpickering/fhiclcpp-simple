@@ -6,7 +6,7 @@
 
 #include "fhiclcppsimple/string_parsers/traits.hxx"
 
-namespace fhicl {
+namespace fhiclsimple {
 
 #define VARLIST                                                                \
   Y(kNil, 1)                                                                   \
@@ -50,23 +50,23 @@ template <typename T> struct fhicl_type {
       typename std::conditional<is_seq<T>::value, Sequence, Atom>::type type;
 };
 
-template <> struct fhicl_type<fhicl::ParameterSet> {
+template <> struct fhicl_type<fhiclsimple::ParameterSet> {
   static fhicl_category category() { return fhicl_category::kTable; }
   static std::string const category_string() { return "kTable"; }
   static constexpr bool is_table = true;
   typedef ParameterSet type;
 };
-template <> struct fhicl_type<fhicl::Atom> {
+template <> struct fhicl_type<fhiclsimple::Atom> {
   static fhicl_category category() { return fhicl_category::kAtom; }
   static std::string const category_string() { return "kAtom"; }
   static constexpr bool is_table = false;
   typedef Atom type;
 };
-template <> struct fhicl_type<fhicl::Sequence> {
+template <> struct fhicl_type<fhiclsimple::Sequence> {
   static fhicl_category category() { return fhicl_category::kSequence; }
   static std::string const category_string() { return "kSequence"; }
   static constexpr bool is_table = false;
   typedef Sequence type;
 };
 
-} // namespace fhicl
+} // namespace fhiclsimple

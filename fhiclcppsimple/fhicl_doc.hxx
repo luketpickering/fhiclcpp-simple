@@ -19,7 +19,7 @@
 #include <dirent.h>
 #include <unistd.h>
 
-namespace fhicl {
+namespace fhiclsimple {
 
 class fhicl_doc;
 
@@ -613,4 +613,4 @@ inline fhicl_doc read_doc(std::string const &filename) {
   return doc;
 }
 
-} // namespace fhicl
+} // namespace fhiclsimple

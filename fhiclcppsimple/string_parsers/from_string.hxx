@@ -10,7 +10,7 @@
 #include <tuple>
 #include <vector>
 
-namespace fhicl {
+namespace fhiclsimple {
 
 namespace string_parsers {
 
@@ -410,4 +410,4 @@ str2T(std::string const &str) {
 }
 
 } // namespace string_parsers
-} // namespace fhicl
+} // namespace fhiclsimple
