@@ -1,9 +1,9 @@
 #pragma once
 
-#include "fhiclcpp/types/Base.hxx"
+#include "fhiclcppsimple/types/Base.hxx"
 
-#include "fhiclcpp/string_parsers/from_string.hxx"
-#include "fhiclcpp/string_parsers/traits.hxx"
+#include "fhiclcppsimple/string_parsers/from_string.hxx"
+#include "fhiclcppsimple/string_parsers/traits.hxx"
 
 #include <iomanip>
 #include <sstream>

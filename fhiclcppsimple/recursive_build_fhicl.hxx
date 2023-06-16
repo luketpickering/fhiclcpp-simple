@@ -1,8 +1,8 @@
 #pragma once
 
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcppsimple/ParameterSet.h"
 
-#include "fhiclcpp/fhicl_doc.hxx"
+#include "fhiclcppsimple/fhicl_doc.hxx"
 
 #include <cstdio>
 

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "fhiclcpp/types/Atom.hxx"
-#include "fhiclcpp/types/Base.hxx"
-#include "fhiclcpp/types/exception.hxx"
+#include "fhiclcppsimple/types/Atom.hxx"
+#include "fhiclcppsimple/types/Base.hxx"
+#include "fhiclcppsimple/types/exception.hxx"
 
-#include "fhiclcpp/string_parsers/from_string.hxx"
-#include "fhiclcpp/string_parsers/md5.hxx"
-#include "fhiclcpp/string_parsers/to_string.hxx"
-#include "fhiclcpp/string_parsers/traits.hxx"
+#include "fhiclcppsimple/string_parsers/from_string.hxx"
+#include "fhiclcppsimple/string_parsers/md5.hxx"
+#include "fhiclcppsimple/string_parsers/to_string.hxx"
+#include "fhiclcppsimple/string_parsers/traits.hxx"
 
 #include <cstdint>
 #include <iomanip>

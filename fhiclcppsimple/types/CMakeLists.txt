@@ -1,6 +1,6 @@
 if(DOTEST)
   add_executable(types_tests tests.cxx)
-  target_link_libraries(types_tests fhiclcpp_includes linedoc::includes)
+  target_link_libraries(types_tests fhiclcppsimple_includes linedoc::includes)
   install(TARGETS types_tests DESTINATION test)
 
   add_test(NAME types_tests COMMAND types_tests)
@@ -15,4 +15,4 @@ install(FILES
   Sequence.hxx
   traits.hxx
   utility.hxx
-  DESTINATION include/fhiclcpp/types)
+  DESTINATION include/fhiclcppsimple/types)

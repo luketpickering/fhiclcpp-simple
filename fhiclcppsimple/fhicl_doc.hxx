@@ -1,9 +1,9 @@
 #pragma once
 
-#include "fhiclcpp/exception.hxx"
+#include "fhiclcppsimple/exception.hxx"
 
-#include "fhiclcpp/string_parsers/traits.hxx"
-#include "fhiclcpp/string_parsers/utility.hxx"
+#include "fhiclcppsimple/string_parsers/traits.hxx"
+#include "fhiclcppsimple/string_parsers/utility.hxx"
 
 #include "linedoc/doc.hxx"
 

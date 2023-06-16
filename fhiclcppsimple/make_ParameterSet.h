@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/recursive_build_fhicl.hxx"
+#include "fhiclcppsimple/ParameterSet.h"
+#include "fhiclcppsimple/recursive_build_fhicl.hxx"
 
 namespace fhicl {
 

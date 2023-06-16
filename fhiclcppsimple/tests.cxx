@@ -1,8 +1,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "fhiclcpp/exception.hxx"
-#include "fhiclcpp/make_ParameterSet.h"
+#include "fhiclcppsimple/exception.hxx"
+#include "fhiclcppsimple/make_ParameterSet.h"
 
 using namespace fhicl;
 using namespace linedoc;

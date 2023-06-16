@@ -1,9 +1,9 @@
 #pragma once
 
-#include "fhiclcpp/types/ParameterSet.hxx"
-#include "fhiclcpp/types/Sequence.hxx"
-#include "fhiclcpp/types/exception.hxx"
-#include "fhiclcpp/types/traits.hxx"
+#include "fhiclcppsimple/types/ParameterSet.hxx"
+#include "fhiclcppsimple/types/Sequence.hxx"
+#include "fhiclcppsimple/types/exception.hxx"
+#include "fhiclcppsimple/types/traits.hxx"
 
 #include <memory>
 #include <sstream>

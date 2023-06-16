@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fhiclcpp/string_parsers/traits.hxx"
+#include "fhiclcppsimple/string_parsers/traits.hxx"
 
 #include <iomanip>
 #include <iostream>

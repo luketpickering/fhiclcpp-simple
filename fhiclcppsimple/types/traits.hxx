@@ -1,10 +1,10 @@
 #pragma once
 
-#include "fhiclcpp/types/Atom.hxx"
-#include "fhiclcpp/types/ParameterSet.hxx"
-#include "fhiclcpp/types/Sequence.hxx"
+#include "fhiclcppsimple/types/Atom.hxx"
+#include "fhiclcppsimple/types/ParameterSet.hxx"
+#include "fhiclcppsimple/types/Sequence.hxx"
 
-#include "fhiclcpp/string_parsers/traits.hxx"
+#include "fhiclcppsimple/string_parsers/traits.hxx"
 
 namespace fhicl {
 

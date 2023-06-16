@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fhiclcpp/types/exception.hxx"
+#include "fhiclcppsimple/types/exception.hxx"
 
 #include <sstream>
 #include <stdexcept>

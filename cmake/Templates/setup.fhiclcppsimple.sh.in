@@ -90,11 +90,11 @@ function add_to_FHICL_FILE_PATH () {
 
 fi
 
-export fhiclcpp_ROOT="@CMAKE_INSTALL_PREFIX@"
-export fhiclcpp_VERSION="@PROJECT_VERSION@"
+export fhiclcppsimple_ROOT="@CMAKE_INSTALL_PREFIX@"
+export fhiclcppsimple_VERSION="@PROJECT_VERSION@"
 
-add_to_PATH "${fhiclcpp_ROOT}/bin"
+add_to_PATH "${fhiclcppsimple_ROOT}/bin"
 
 if [ "@DOTEST_CONFIG@" == "TRUE" ]; then
-  add_to_FHICL_FILE_PATH "${fhiclcpp_ROOT}/fcl"
+  add_to_FHICL_FILE_PATH "${fhiclcppsimple_ROOT}/fcl"
 fi

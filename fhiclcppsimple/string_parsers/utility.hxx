@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fhiclcpp/string_parsers/exception.hxx"
+#include "fhiclcppsimple/string_parsers/exception.hxx"
 
 #include <algorithm>
 #include <iomanip>
