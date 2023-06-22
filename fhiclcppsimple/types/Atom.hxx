@@ -22,7 +22,7 @@ public:
       return T{};
     }
     return string_parsers::str2T<T>(internal_rep);
-  };
+  }
   template <typename T>
   typename std::enable_if<std::is_same<T, std::string>::value, T>::type
   as() const {
@@ -52,7 +52,7 @@ public:
       return ss.str();
     }
     return stringified;
-  };
+  }
   Atom(std::string const &str) { from(str); }
   Atom(std::string &&str) { from(std::move(str)); }
   Atom(Atom const &other) : Base() { internal_rep = other.internal_rep; }
