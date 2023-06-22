@@ -462,7 +462,7 @@ public:
     }
 
     return string_parsers::str2T<T>(get_value_recursive(key)->to_string());
-  };
+  }
 
   template <typename T> T get(key_t const &key, T def) const {
     try {
@@ -476,7 +476,7 @@ public:
           << "[ERROR]: Caught unexpected exception in ParameterSet::get: "
           << std::quoted(e.what());
     }
-  };
+  }
 
   template <typename T> bool get_if_present(key_t const &key, T &rtn) const {
     if (!check_key(key)) {
@@ -494,7 +494,7 @@ public:
           << std::quoted(e.what());
     }
     return true;
-  };
+  }
 
   template <typename T> void put(key_t const &key, T const &value) {
     if (has_key(key)) {

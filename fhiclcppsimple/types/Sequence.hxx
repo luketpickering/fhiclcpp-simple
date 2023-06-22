@@ -56,11 +56,11 @@ public:
       throw;
     }
     return string_parsers::str2T<T>(internal_rep[index]->to_string());
-  };
+  }
   template <typename T>
   typename std::enable_if<is_seq<T>::value, T>::type as() const {
     return string_parsers::str2T<T>(to_string());
-  };
+  }
   Sequence() : internal_rep() {}
   Sequence(std::string const &str) : internal_rep() { from(str); }
   Sequence(Sequence &&other) : internal_rep(std::move(other.internal_rep)) {}
