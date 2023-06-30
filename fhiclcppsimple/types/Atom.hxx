@@ -26,9 +26,14 @@ public:
   template <typename T>
   typename std::enable_if<std::is_same<T, std::string>::value, T>::type
   as() const {
+
     if (is_nil()) {
       return "@nil";
     }
+    else{
+      return internal_rep;
+    }
+/*
     std::string stringified = string_parsers::str2T<T>(internal_rep);
     size_t first_period = stringified.find_first_of(".");
     if (first_period !=
@@ -45,6 +50,7 @@ public:
       }
     }
 
+
     size_t first_punct = stringified.find_first_of(" ,\"\':;*&%$#@!~{}[]()/.");
     if (first_punct != std::string::npos) {
       std::stringstream ss("");
@@ -52,6 +58,8 @@ public:
       return ss.str();
     }
     return stringified;
+*/
+
   }
   Atom(std::string const &str) { from(str); }
   Atom(std::string &&str) { from(std::move(str)); }

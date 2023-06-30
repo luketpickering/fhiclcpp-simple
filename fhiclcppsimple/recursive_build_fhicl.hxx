@@ -222,7 +222,8 @@ parse_object(fhicl_doc const &doc, linedoc::doc_range range,
           << ". N.B. quoted strings cannot span multiple lines.";
     }
 
-    std::string value = doc.substr(first_string_point, matching_quote);
+    std::string value = "\""+doc.substr(first_string_point, matching_quote)+"\"";
+
     next_character = doc.advance(matching_quote);
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
     std::cout << indent << "[INFO]: Found KV: {" << std::quoted(current_key)
