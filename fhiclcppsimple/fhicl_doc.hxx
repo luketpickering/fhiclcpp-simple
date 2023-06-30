@@ -12,6 +12,8 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <sstream>
+
 #include <string>
 #include <vector>
 
@@ -24,6 +26,7 @@ namespace fhiclsimple {
 class fhicl_doc;
 
 inline fhicl_doc read_doc(std::string const &filename);
+inline fhicl_doc convert_from_string(std::string const &str);
 inline linedoc::doc_line_point find_matching_bracket(
     fhicl_doc const &doc, char open_bracket = '{', char close_bracket = '}',
     linedoc::doc_line_point begin = linedoc::doc_line_point::begin());
@@ -611,6 +614,23 @@ inline fhicl_doc read_doc(std::string const &filename) {
     ctr++;
   }
   return doc;
+}
+
+inline fhicl_doc convert_from_string(std::string const &str){
+
+  std::istringstream iss(str);
+
+  std::string line;
+  fhicl_doc doc;
+  size_t ctr = 0;
+
+  while (std::getline(iss, line)) {
+    string_parsers::trim(line);
+    doc.push_back(line, "", ctr);
+    ctr++;
+  }
+  return doc;
+
 }
 
 } // namespace fhiclsimple
