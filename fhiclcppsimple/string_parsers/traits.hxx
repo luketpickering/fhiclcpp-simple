@@ -7,7 +7,7 @@
 #include <utility>
 #include <vector>
 
-namespace fhicl {
+namespace fhiclsimple {
 template <typename T> struct is_vect { static constexpr bool value = false; };
 template <typename... Ts> struct is_vect<std::vector<Ts...>> {
   static constexpr bool value = true;
@@ -102,4 +102,4 @@ template <typename... Ts> struct string_rep_delim<std::tuple<Ts...>> {
     return rtn;
   }
 };
-} // namespace fhicl
+} // namespace fhiclsimple

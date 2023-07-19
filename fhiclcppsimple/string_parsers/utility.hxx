@@ -1,13 +1,13 @@
 #pragma once
 
-#include "fhiclcpp/string_parsers/exception.hxx"
+#include "fhiclcppsimple/string_parsers/exception.hxx"
 
 #include <algorithm>
 #include <iomanip>
 #include <map>
 #include <string>
 
-namespace fhicl {
+namespace fhiclsimple {
 namespace string_parsers {
 
 // trim from start (in place)
@@ -35,7 +35,7 @@ inline bool well_bracket_wrapped(std::string str, char open_bracket = '{',
   trim(str);
   if ((str.front() == open_bracket) || (str.back() == close_bracket)) {
     if (!((str.front() == open_bracket) && (str.back() == close_bracket))) {
-      throw fhicl::string_parsers::mismatched_brackets()
+      throw fhiclsimple::string_parsers::mismatched_brackets()
           << "[ERROR]: Malformed bracketed string: " << std::quoted(str)
           << ", expected to find it bounded by " << open_bracket
           << close_bracket;
@@ -136,4 +136,4 @@ inline std::string ensure_trailing_slash(std::string const &str) {
 }
 
 } // namespace string_parsers
-} // namespace fhicl
+} // namespace fhiclsimple

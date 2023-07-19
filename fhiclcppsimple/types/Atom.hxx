@@ -1,14 +1,14 @@
 #pragma once
 
-#include "fhiclcpp/types/Base.hxx"
+#include "fhiclcppsimple/types/Base.hxx"
 
-#include "fhiclcpp/string_parsers/from_string.hxx"
-#include "fhiclcpp/string_parsers/traits.hxx"
+#include "fhiclcppsimple/string_parsers/from_string.hxx"
+#include "fhiclcppsimple/string_parsers/traits.hxx"
 
 #include <iomanip>
 #include <sstream>
 
-namespace fhicl {
+namespace fhiclsimple {
 class Atom : public Base {
   void from(std::string const &str) { internal_rep = str; }
   void from(std::string &&str) { internal_rep = std::move(str); }
@@ -22,13 +22,18 @@ public:
       return T{};
     }
     return string_parsers::str2T<T>(internal_rep);
-  };
+  }
   template <typename T>
   typename std::enable_if<std::is_same<T, std::string>::value, T>::type
   as() const {
+
     if (is_nil()) {
       return "@nil";
     }
+    else{
+      return internal_rep;
+    }
+/*
     std::string stringified = string_parsers::str2T<T>(internal_rep);
     size_t first_period = stringified.find_first_of(".");
     if (first_period !=
@@ -45,6 +50,7 @@ public:
       }
     }
 
+
     size_t first_punct = stringified.find_first_of(" ,\"\':;*&%$#@!~{}[]()/.");
     if (first_punct != std::string::npos) {
       std::stringstream ss("");
@@ -52,7 +58,9 @@ public:
       return ss.str();
     }
     return stringified;
-  };
+*/
+
+  }
   Atom(std::string const &str) { from(str); }
   Atom(std::string &&str) { from(std::move(str)); }
   Atom(Atom const &other) : Base() { internal_rep = other.internal_rep; }
@@ -68,4 +76,4 @@ public:
 
   bool is_nil() const { return internal_rep == "@nil"; }
 };
-} // namespace fhicl
+} // namespace fhiclsimple

@@ -1,15 +1,15 @@
 #pragma once
 
-#include "fhiclcpp/types/ParameterSet.hxx"
-#include "fhiclcpp/types/Sequence.hxx"
-#include "fhiclcpp/types/exception.hxx"
-#include "fhiclcpp/types/traits.hxx"
+#include "fhiclcppsimple/types/ParameterSet.hxx"
+#include "fhiclcppsimple/types/Sequence.hxx"
+#include "fhiclcppsimple/types/exception.hxx"
+#include "fhiclcppsimple/types/traits.hxx"
 
 #include <memory>
 #include <sstream>
 #include <string>
 
-namespace fhicl {
+namespace fhiclsimple {
 
 fhicl_category inline get_fhicl_category(std::shared_ptr<Base> const el) {
   if (!el) {
@@ -88,4 +88,4 @@ deep_copy_value(std::shared_ptr<Base> const original) {
          "backtrace to the maintainer.";
 }
 
-} // namespace fhicl
+} // namespace fhiclsimple

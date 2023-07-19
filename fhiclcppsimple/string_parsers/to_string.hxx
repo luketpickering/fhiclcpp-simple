@@ -1,13 +1,13 @@
 #pragma once
 
-#include "fhiclcpp/string_parsers/traits.hxx"
+#include "fhiclcppsimple/string_parsers/traits.hxx"
 
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
 
-namespace fhicl {
+namespace fhiclsimple {
 namespace string_parsers {
 
 template <typename T>
@@ -88,4 +88,4 @@ T2Str(typename std::enable_if<is_tuple<T>::value, T>::type const &t) {
 }
 
 } // namespace string_parsers
-} // namespace fhicl
+} // namespace fhiclsimple

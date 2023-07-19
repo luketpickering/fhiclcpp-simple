@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fhiclcpp/string_parsers/traits.hxx"
-#include "fhiclcpp/string_parsers/utility.hxx"
+#include "fhiclcppsimple/string_parsers/traits.hxx"
+#include "fhiclcppsimple/string_parsers/utility.hxx"
 
 #include <iomanip>
 #include <iostream>
@@ -10,7 +10,7 @@
 #include <tuple>
 #include <vector>
 
-namespace fhicl {
+namespace fhiclsimple {
 
 namespace string_parsers {
 
@@ -410,4 +410,4 @@ str2T(std::string const &str) {
 }
 
 } // namespace string_parsers
-} // namespace fhicl
+} // namespace fhiclsimple

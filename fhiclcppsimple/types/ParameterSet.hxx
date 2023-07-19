@@ -1,13 +1,13 @@
 #pragma once
 
-#include "fhiclcpp/types/Atom.hxx"
-#include "fhiclcpp/types/Base.hxx"
-#include "fhiclcpp/types/exception.hxx"
+#include "fhiclcppsimple/types/Atom.hxx"
+#include "fhiclcppsimple/types/Base.hxx"
+#include "fhiclcppsimple/types/exception.hxx"
 
-#include "fhiclcpp/string_parsers/from_string.hxx"
-#include "fhiclcpp/string_parsers/md5.hxx"
-#include "fhiclcpp/string_parsers/to_string.hxx"
-#include "fhiclcpp/string_parsers/traits.hxx"
+#include "fhiclcppsimple/string_parsers/from_string.hxx"
+#include "fhiclcppsimple/string_parsers/md5.hxx"
+#include "fhiclcppsimple/string_parsers/to_string.hxx"
+#include "fhiclcppsimple/string_parsers/traits.hxx"
 
 #include <cstdint>
 #include <iomanip>
@@ -22,17 +22,17 @@ typedef doc_range_<char> doc_range;
 
 // These declarations must be here before the first instantation that would use
 // str2T/T2Str in a given translation unit
-namespace fhicl {
+namespace fhiclsimple {
 class ParameterSet;
 namespace string_parsers {
 template <>
-inline fhicl::ParameterSet str2T<fhicl::ParameterSet>(std::string const &);
+inline fhiclsimple::ParameterSet str2T<fhiclsimple::ParameterSet>(std::string const &);
 template <>
-inline std::string T2Str<fhicl::ParameterSet>(fhicl::ParameterSet const &);
+inline std::string T2Str<fhiclsimple::ParameterSet>(fhiclsimple::ParameterSet const &);
 } // namespace string_parsers
-} // namespace fhicl
+} // namespace fhiclsimple
 
-namespace fhicl {
+namespace fhiclsimple {
 enum class fhicl_category;
 
 // Forward declarations of functions found in utility.hxx
@@ -196,7 +196,7 @@ class ParameterSet : public Base {
 
   std::string get_fhicl_category_string(key_t const &key) const {
     check_key(key, true);
-    return fhicl::get_fhicl_category_string(get_value_recursive(key));
+    return fhiclsimple::get_fhicl_category_string(get_value_recursive(key));
   }
 
 public:
@@ -462,21 +462,21 @@ public:
     }
 
     return string_parsers::str2T<T>(get_value_recursive(key)->to_string());
-  };
+  }
 
   template <typename T> T get(key_t const &key, T def) const {
     try {
       return get<T>(key);
-    } catch (fhicl::string_parsers::fhicl_cpp_simple_except &e) { // parser fail
+    } catch (fhiclsimple::string_parsers::fhicl_cpp_simple_except &e) { // parser fail
       return def;
-    } catch (fhicl::fhicl_cpp_simple_except &e) { // type fail
+    } catch (fhiclsimple::fhicl_cpp_simple_except &e) { // type fail
       return def;
     } catch (std::exception &e) {
       throw bizare_error()
           << "[ERROR]: Caught unexpected exception in ParameterSet::get: "
           << std::quoted(e.what());
     }
-  };
+  }
 
   template <typename T> bool get_if_present(key_t const &key, T &rtn) const {
     if (!check_key(key)) {
@@ -484,9 +484,9 @@ public:
     }
     try {
       rtn = get<T>(key);
-    } catch (fhicl::string_parsers::fhicl_cpp_simple_except &e) { // parser fail
+    } catch (fhiclsimple::string_parsers::fhicl_cpp_simple_except &e) { // parser fail
       return false;
-    } catch (fhicl::fhicl_cpp_simple_except &e) { // type fail
+    } catch (fhiclsimple::fhicl_cpp_simple_except &e) { // type fail
       return false;
     } catch (std::exception &e) {
       throw bizare_error()
@@ -494,7 +494,7 @@ public:
           << std::quoted(e.what());
     }
     return true;
-  };
+  }
 
   template <typename T> void put(key_t const &key, T const &value) {
     if (has_key(key)) {
@@ -604,17 +604,17 @@ public:
   }
 };
 
-} // namespace fhicl
+} // namespace fhiclsimple
 
-namespace fhicl {
+namespace fhiclsimple {
 namespace string_parsers {
 template <>
-inline fhicl::ParameterSet str2T<fhicl::ParameterSet>(std::string const &str) {
-  return fhicl::ParameterSet(str);
+inline fhiclsimple::ParameterSet str2T<fhiclsimple::ParameterSet>(std::string const &str) {
+  return fhiclsimple::ParameterSet(str);
 }
 template <>
-inline std::string T2Str<fhicl::ParameterSet>(fhicl::ParameterSet const &ps) {
+inline std::string T2Str<fhiclsimple::ParameterSet>(fhiclsimple::ParameterSet const &ps) {
   return std::string("{") + ps.to_string() + "}";
 }
 } // namespace string_parsers
-} // namespace fhicl
+} // namespace fhiclsimple

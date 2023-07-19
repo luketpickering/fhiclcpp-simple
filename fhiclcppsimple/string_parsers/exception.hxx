@@ -1,11 +1,28 @@
 #pragma once
 
-#include "fhiclcpp/types/exception.hxx"
-
 #include <sstream>
 #include <stdexcept>
 
-namespace fhicl {
+namespace fhiclsimple {
+namespace string_parsers {
+
+struct fhicl_cpp_simple_except : public std::exception {
+  std::stringstream msgstrm;
+  std::string msg;
+  fhicl_cpp_simple_except() : msgstrm(), msg() {}
+  fhicl_cpp_simple_except(fhicl_cpp_simple_except const &other)
+      : msgstrm(), msg() {
+    msgstrm << other.msg;
+    msg = other.msg;
+  }
+  const char *what() const noexcept { return msg.c_str(); }
+
+  template <typename T> fhicl_cpp_simple_except &operator<<(T const &obj) {
+    msgstrm << obj;
+    msg = msgstrm.str();
+    return (*this);
+  }
+};
 
 #define NEW_EXCEPT(EXCEPT_NAME)                                                \
   struct EXCEPT_NAME : public fhicl_cpp_simple_except {                        \
@@ -18,22 +35,11 @@ namespace fhicl {
     }                                                                          \
   }
 
-NEW_EXCEPT(file_does_not_exist);
-NEW_EXCEPT(include_loop);
-NEW_EXCEPT(internal_error);
-NEW_EXCEPT(malformed_document);
+NEW_EXCEPT(mismatched_brackets);
+NEW_EXCEPT(parser_fail);
+NEW_EXCEPT(wrong_number_of_elements);
 
 #undef NEW_EXCEPT
 
-struct unexpected_newline : public malformed_document {
-  unexpected_newline() : malformed_document() {}
-  unexpected_newline(unexpected_newline const &other)
-      : malformed_document(other) {}
-  template <typename T> unexpected_newline &operator<<(T const &obj) {
-    msgstrm << obj;
-    msg = msgstrm.str();
-    return (*this);
-  }
-};
-
-} // namespace fhicl
+} // namespace string_parsers
+} // namespace fhiclsimple

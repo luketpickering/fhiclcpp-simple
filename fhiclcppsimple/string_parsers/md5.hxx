@@ -33,8 +33,7 @@ documentation and/or software.
 
 */
 
-#ifndef BZF_MD5_H
-#define BZF_MD5_H
+#pragma once
 
 #include <cstdint>
 #include <cstdio>
@@ -51,6 +50,8 @@ documentation and/or software.
 //      MD5(std::string).hexdigest()
 //
 // assumes that char is 8 bit and int is 32 bit
+
+namespace fhiclsimple{
 
 class MD5 {
   typedef uint8_t uint1;  //  8bit
@@ -407,4 +408,4 @@ std::string md5(const std::string str) {
   return md5.hexdigest();
 }
 
-#endif
+}

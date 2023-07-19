@@ -1,21 +1,21 @@
 #pragma once
 
-#include "fhiclcpp/types/Atom.hxx"
-#include "fhiclcpp/types/Base.hxx"
-#include "fhiclcpp/types/ParameterSet.hxx"
-#include "fhiclcpp/types/Sequence.hxx"
-#include "fhiclcpp/types/exception.hxx"
-#include "fhiclcpp/types/traits.hxx"
-#include "fhiclcpp/types/utility.hxx"
+#include "fhiclcppsimple/types/Atom.hxx"
+#include "fhiclcppsimple/types/Base.hxx"
+#include "fhiclcppsimple/types/ParameterSet.hxx"
+#include "fhiclcppsimple/types/Sequence.hxx"
+#include "fhiclcppsimple/types/exception.hxx"
+#include "fhiclcppsimple/types/traits.hxx"
+#include "fhiclcppsimple/types/utility.hxx"
 
-#include "fhiclcpp/string_parsers/exception.hxx"
-#include "fhiclcpp/string_parsers/from_string.hxx"
-#include "fhiclcpp/string_parsers/to_string.hxx"
+#include "fhiclcppsimple/string_parsers/exception.hxx"
+#include "fhiclcppsimple/string_parsers/from_string.hxx"
+#include "fhiclcppsimple/string_parsers/to_string.hxx"
 
 #include <limits>
 #include <memory>
 
-namespace fhicl {
+namespace fhiclsimple {
 
 void Sequence::from(std::string const &str) {
   if (!str.size()) {
@@ -426,4 +426,4 @@ ParameterSet::get_value_recursive(key_t const &key) const {
 #endif
 }
 
-} // namespace fhicl
+} // namespace fhiclsimple

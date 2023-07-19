@@ -1,12 +1,12 @@
 #pragma once
 
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcppsimple/ParameterSet.h"
 
-#include "fhiclcpp/fhicl_doc.hxx"
+#include "fhiclcppsimple/fhicl_doc.hxx"
 
 #include <cstdio>
 
-namespace fhicl {
+namespace fhiclsimple {
 
 inline ParameterSet parse_fhicl_document(fhicl_doc const &,
                                          ParameterSet const &,
@@ -222,7 +222,8 @@ parse_object(fhicl_doc const &doc, linedoc::doc_range range,
           << ". N.B. quoted strings cannot span multiple lines.";
     }
 
-    std::string value = doc.substr(first_string_point, matching_quote);
+    std::string value = "\""+doc.substr(first_string_point, matching_quote)+"\"";
+
     next_character = doc.advance(matching_quote);
 #ifdef FHICLCPP_SIMPLE_PARSERS_DEBUG
     std::cout << indent << "[INFO]: Found KV: {" << std::quoted(current_key)
@@ -620,4 +621,4 @@ parse_fhicl_document(fhicl_doc const &doc,
 
   return (*ps);
 }
-} // namespace fhicl
+} // namespace fhiclsimple

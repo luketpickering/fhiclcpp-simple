@@ -1,14 +1,14 @@
 #pragma once
 
-#include "fhiclcpp/types/Base.hxx"
+#include "fhiclcppsimple/types/Base.hxx"
 
-#include "fhiclcpp/string_parsers/from_string.hxx"
-#include "fhiclcpp/string_parsers/traits.hxx"
+#include "fhiclcppsimple/string_parsers/from_string.hxx"
+#include "fhiclcppsimple/string_parsers/traits.hxx"
 
 #include <memory>
 #include <limits>
 
-namespace fhicl {
+namespace fhiclsimple {
 class ParameterSet;
 // forward declaration for functions found in utility.hxx
 std::shared_ptr<Base> deep_copy_value(std::shared_ptr<Base> const original);
@@ -56,11 +56,11 @@ public:
       throw;
     }
     return string_parsers::str2T<T>(internal_rep[index]->to_string());
-  };
+  }
   template <typename T>
   typename std::enable_if<is_seq<T>::value, T>::type as() const {
     return string_parsers::str2T<T>(to_string());
-  };
+  }
   Sequence() : internal_rep() {}
   Sequence(std::string const &str) : internal_rep() { from(str); }
   Sequence(Sequence &&other) : internal_rep(std::move(other.internal_rep)) {}
@@ -198,4 +198,4 @@ public:
     }
   }
 };
-} // namespace fhicl
+} // namespace fhiclsimple
