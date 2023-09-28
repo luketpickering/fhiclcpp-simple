@@ -1,10 +1,10 @@
 #include <cassert>
 #include <iostream>
 
-#include "string_parsers/exception.hxx"
-#include "string_parsers/from_string.hxx"
-#include "string_parsers/to_string.hxx"
-#include "string_parsers/utility.hxx"
+#include "fhiclcpp/string_parsers/exception.hxx"
+#include "fhiclcpp/string_parsers/from_string.hxx"
+#include "fhiclcpp/string_parsers/to_string.hxx"
+#include "fhiclcpp/string_parsers/utility.hxx"
 
 using namespace fhicl;
 using namespace string_parsers;

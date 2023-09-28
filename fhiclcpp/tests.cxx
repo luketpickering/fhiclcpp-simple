@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "fhiclcpp/exception.hxx"
-#include "fhiclcpp/make_ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 using namespace fhicl;
 using namespace linedoc;

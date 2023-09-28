@@ -602,6 +602,10 @@ public:
     internal_rep.erase(key);
     history.erase(key);
   }
+
+  template<typename T>
+  static ParameterSet make(std::string const &fn, T &);
+
 };
 
 } // namespace fhicl
