@@ -14,7 +14,7 @@ struct filepath_maker {};
 namespace fhicl {
 
 template <>
-ParameterSet ParameterSet::make(std::string const &filename,
+inline ParameterSet ParameterSet::make(std::string const &filename,
                                 cet::filepath_maker &fm) {
   ParameterSet prolog;
   ParameterSet working_doc;

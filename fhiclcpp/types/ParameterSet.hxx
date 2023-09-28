@@ -604,7 +604,7 @@ public:
   }
 
   template<typename T>
-  static ParameterSet make(std::string const &fn, T &);
+  inline static ParameterSet make(std::string const &fn, T &);
 
 };
 
