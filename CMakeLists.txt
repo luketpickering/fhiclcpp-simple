@@ -38,6 +38,9 @@ install(TARGETS fhiclcpp_includes EXPORT fhiclcppTargets)
 
 add_library(fhiclcpp::includes ALIAS fhiclcpp_includes)
 
+#add a second alias for drop-in compatibility with official standalone fhiclcpp
+add_library(fhiclcpp::fhiclcpp ALIAS fhiclcpp_includes)
+
 add_subdirectory(fhiclcpp)
 
 include(CMakePackageConfigHelpers)

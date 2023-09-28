@@ -18,5 +18,6 @@ install(FILES
   exception.hxx
   make_ParameterSet.h
   ParameterSet.h
+  fwd.h
   recursive_build_fhicl.hxx
 DESTINATION include/fhiclcpp)
